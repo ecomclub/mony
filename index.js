@@ -1,67 +1,94 @@
 'use strict'
 
-const client = new ApiAi.ApiAiClient({accessToken: '30c7f830268c4d06ab53c3cb04c18213'})
+const client = new ApiAi.ApiAiClient({accessToken: '639e715963e14f4e886e9fb8cee23e2d'})
 
-// function to init conversation
-function init (storeID, storeName, domain, name, gender, email, userID, language) {
-  // msg with storeID and name, dialogflowKey with accessToken to dialogflow
+var Mony = function () {
+  let accessToken, myID, responseCallback, actionCallback
 
-  // using JS SDK from dialogflow
-  const promise = client.textRequest('O id: ' + storeID + ' nome da loja: ' + storeName + ' dominio: ' + domain +
-  ' nome: ' + name + ' gênero: ' + gender + ' email: ' + email + ' id do usuário: ' + userID + ' linguagem: ' + language)
+  let sendRequest = function (promise, callback) {
+    promise
+        .then(handleResponse)
+        .catch(handleError)
 
-  promise
-      .then(handleResponse)
-      .catch(handleError)
+    // response from dialofflow
+    function handleResponse (serverResponse) {
+      let method, body
+      let parameters = serverResponse.result.parameters
 
-  // response from dialofflow
-  function handleResponse (serverResponse) {
-    console.log(serverResponse)
+      // loop in parameters object
+      for (var key in parameters) {
+        if (parameters.hasOwnProperty(key) && key === 'Questions') {}
+      }
+
+      // call with AJAX
+      let ajax = new XMLHttpRequest()
+      let url = 'https://api.e-com.plus/v1'
+      ajax.open(method, url, true)
+      ajax.setRequestHeader('X-Access-Token', accessToken)
+      ajax.setRequestHeader('X-My-ID', myID)
+
+      if (body) {
+        // send JSON body
+        ajax.send(JSON.stringify(body))
+      } else {
+        ajax.send()
+      }
+
+      ajax.onreadystatechange = function () {
+        if (this.readyState === 4) {
+          // request finished and response is ready
+          if (this.status !== 200) {
+            // try to resend request
+          }
+        }
+      }
+    }
+
+    // Error Handling
+    function handleError (serverError) {
+      // change to logger
+      console.log(serverError)
+    }
   }
 
-  // Error Handling
-  function handleError (serverError) {
-    // change to logger
-    console.log(serverError)
+  return {
+
+    // function to init conversation on dialogflow with some parameters
+    'init': function (storeID, storeName, domain, name, gender, email, userID, language, token, id, ResponseCallback, ActionCallback) {
+      // set token and id to authentication requests
+      accessToken = token
+      myID = id
+
+      // msg
+      responseCallback = ResponseCallback
+      // object
+      actionCallback = ActionCallback
+
+      // using JS SDK from dialogflow
+      let promise = client.textRequest('O id: ' + storeID + ' nome da loja: ' + storeName + ' dominio: ' + domain +
+      ' nome: ' + name + ' gênero: ' + gender + ' email: ' + email + ' id do usuário: ' + userID + ' linguagem: ' + language)
+
+      // sendRequest
+      sendRequest(promise)
+    },
+
+    // function to send the actual page of the user to help the search
+    'sendPage': function (page) {
+      // using JS SDK from dialogflow
+      let promise = client.textRequest('pagina:' + page)
+      // sendRequest
+      sendRequest(promise)
+    },
+
+    // function to send message from user
+    'sendMessage': function (msg, callback) {
+      // using JS SDK from dialogflow
+      let promise = client.textRequest(msg)
+
+      // sendRequest
+      sendRequest(promise, callback)
+    }
   }
 }
 
-// function to send the actual page of the user to help the search
-function sendPage (page) {
-  const promise = client.textRequest('pagina:' + page)
-
-  promise
-      .then(handleResponse)
-      .catch(handleError)
-
-  // response from dialofflow
-  function handleResponse (serverResponse) {
-    console.log(serverResponse)
-  }
-
-  // Error Handling
-  function handleError (serverError) {
-    // change to logger
-    console.log(serverError)
-  }
-}
-
-// function to send message from user
-function sendMessage (msg) {
-  const promise = client.textRequest(msg)
-
-  promise
-      .then(handleResponse)
-      .catch(handleError)
-
-  // response from dialofflows
-  function handleResponse (serverResponse) {
-    console.log(serverResponse)
-  }
-
-  // Error Handling
-  function handleError (serverError) {
-    // change to logger
-    console.log(serverError)
-  }
-}
+Mony = Mony()
