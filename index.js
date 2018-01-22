@@ -1,6 +1,6 @@
 'use strict'
 
-const client = new ApiAi.ApiAiClient({accessToken: '639e715963e14f4e886e9fb8cee23e2d'})
+const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
   let accessToken, myID, responseCallback, actionCallback
@@ -12,17 +12,22 @@ var Mony = function () {
 
     // response from dialofflow
     function handleResponse (serverResponse) {
-      let method, body
-      let parameters = serverResponse.result.parameters
+      let method, body, endpoint
+      let intent = serverResponse.metadata.intentName
 
-      // loop in parameters object
-      for (var key in parameters) {
-        if (parameters.hasOwnProperty(key) && key === 'Questions') {}
+      switch (intent) {
+        case 'criar produtos':
+          endpoint = '/products.json'
+          break
+        case 'editar produtos':
+        case 'deletar produtos':
+          endpoint = '/products/' + serverResponse.parameters.id + '.json'
+          break
+        default:
       }
-
       // call with AJAX
       let ajax = new XMLHttpRequest()
-      let url = 'https://api.e-com.plus/v1'
+      let url = 'https://api.e-com.plus/v1' + endpoint
       ajax.open(method, url, true)
       ajax.setRequestHeader('X-Access-Token', accessToken)
       ajax.setRequestHeader('X-My-ID', myID)
