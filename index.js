@@ -5,18 +5,18 @@ const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee
 var Mony = function () {
   let accessToken, myID, storeID, responseCallback, actionCallback
 
-  let sendRequest = function (promise, callback) {
+  let sendDialogFlow = function (promise, callback) {
+    let method, body, endpoint
     promise
         .then(handleResponse)
         .catch(handleError)
 
-    // response from dialofflow
     function handleResponse (serverResponse) {
-      let method, body, endpoint
       // intent name
       let intent = serverResponse.metadata.intentName
 
       switch (intent) {
+        // send a post request to Api
         case 'produtos.criar - name - yes - sku - yes':
           endpoint = '/products.json'
           method = 'POST'
@@ -24,61 +24,58 @@ var Mony = function () {
             'sku': serverResponse.parameters.sku,
             'name': serverResponse.parameters.name
           }
+          sendApi(endpoint, body, method)
           break
         case 'cadastro.de.login.por.rede.social':
+          // get the social media and return to dialogflow
           let redesocial = serverResponse.parameters.redesocial
           let promise = client.textRequest('Como criar login pelo ' + redesocial + ' ?')
-          sendRequest(promise)
+          sendDialogFlow(promise)
           break
-        // case 'editar produtos':
-        //   endpoint = '/products/' + serverResponse.parameters.id + '.json'
-        //   method = 'PATCH'
-        //   break
         case 'deletar produtos':
+          // send a delete request to Api
           endpoint = '/products/' + serverResponse.parameters.id + '.json'
           method = 'DELETE'
+          sendApi(endpoint, body, method)
           break
-        // case 'perguntas produtos':
-        //   method = 'GET'
-        //   break
         default:
-          // the answer for dialogflow
-          for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
-
+          // response from dialogflow
+          for (let i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
+            responseCallback(serverResponse.result.fulfillment.message[i])
           }
-      }
-
-      if (endpoint) {
-        // call with AJAX
-        let ajax = new XMLHttpRequest()
-        let url = 'https://sandbox.e-com.plus/v1/' + endpoint
-        ajax.open(method, url, true)
-        ajax.setRequestHeader('X-Access-Token', accessToken)
-        ajax.setRequestHeader('X-My-ID', myID)
-        ajax.setRequestHeader('X-Store-ID', storeID)
-        ajax.setRequestHeader('Content-Type', 'application/json')
-
-        if (body) {
-          // send JSON body
-          ajax.send(JSON.stringify(body))
-        } else {
-          ajax.send()
-        }
-
-        ajax.onreadystatechange = function () {
-          if (this.readyState === 4) {
-            // request finished and response is ready
-            // TREAT ERROR
-            // responseCallback(serverResponse.result.fulfillment.speech)
-          }
-        }
       }
     }
-
     // Error Handling
     function handleError (serverError) {
       // change to logger
       console.log(serverError)
+    }
+  }
+
+  let sendApi = function (endpoint, body, method, callback) {
+    // response from dialofflow
+      // call with AJAX
+    let ajax = new XMLHttpRequest()
+    let url = 'https://sandbox.e-com.plus/v1/' + endpoint
+    ajax.open(method, url, true)
+    ajax.setRequestHeader('X-Access-Token', accessToken)
+    ajax.setRequestHeader('X-My-ID', myID)
+    ajax.setRequestHeader('X-Store-ID', storeID)
+    ajax.setRequestHeader('Content-Type', 'application/json')
+
+    if (body) {
+      // send JSON body
+      ajax.send(JSON.stringify(body))
+    } else {
+      ajax.send()
+    }
+
+    ajax.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        // request finished and response is ready
+        // TREAT ERROR
+        // responseCallback(serverResponse.result.fulfillment.speech)
+      }
     }
   }
 
@@ -101,15 +98,15 @@ var Mony = function () {
       ' nome: ' + name + ' gênero: ' + gender + ' email: ' + email + ' id do usuário: ' + userID + ' linguagem: ' + language)
 
       // sendRequest
-      sendRequest(promise)
+      sendDialogFlow(promise)
     },
 
     // function to send the actual page of the user to help the search
     'sendPage': function (page) {
       // using JS SDK from dialogflow
       let promise = client.textRequest('pagina:' + page)
-      // sendRequest
-      sendRequest(promise)
+      // treatMessage
+      sendDialogFlow(promise)
     },
 
     // function to send message from user
@@ -117,8 +114,8 @@ var Mony = function () {
       // using JS SDK from dialogflow
       let promise = client.textRequest(msg)
 
-      // sendRequest
-      sendRequest(promise, callback)
+      // treatMessage
+      sendDialogFlow(promise, callback)
     }
   }
 }
