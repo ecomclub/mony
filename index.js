@@ -16,15 +16,22 @@ var Mony = function () {
       let intent = serverResponse.metadata.intentName
 
       switch (intent) {
-        // send a post request to Api
-        case 'produtos.criar - name - yes - sku - yes':
-          endpoint = '/products.json'
-          method = 'POST'
-          body = {
-            'sku': serverResponse.parameters.sku,
-            'name': serverResponse.parameters.name
+        // RESOURCE
+        case 'general':
+          if (serverResponse.parameters.resource) {
+            endpoint = '/' + serverResponse.parameters.resource + '/schema.json'
+            method = 'GET'
+            // callback = function (response) {
+            //   let msg = 'Me passe as seguintes propriedades: '
+            //   for (let i = 0; i < response.required; i++) {
+            //     msg += response.required[i]
+            //   }
+            //   let promise = client.textRequest(msg)
+            //   sendDialogFlow(promise)
+            // }
+            // buscando o schema do resource
+            sendApi(endpoint, method, body, callback)
           }
-          sendApi(endpoint, body, method)
           break
         case 'cadastro.de.login.por.rede.social':
           // get the social media and return to dialogflow
@@ -52,31 +59,30 @@ var Mony = function () {
     }
   }
 
-  let sendApi = function (endpoint, body, method, callback) {
-    // response from dialofflow
-      // call with AJAX
-    let ajax = new XMLHttpRequest()
+  let sendApi = function (endpoint, method, body, callback) {
+    // using axios for HTTPS request
     let url = 'https://sandbox.e-com.plus/v1/' + endpoint
-    ajax.open(method, url, true)
-    ajax.setRequestHeader('X-Access-Token', accessToken)
-    ajax.setRequestHeader('X-My-ID', myID)
-    ajax.setRequestHeader('X-Store-ID', storeID)
-    ajax.setRequestHeader('Content-Type', 'application/json')
-
-    if (body) {
-      // send JSON body
-      ajax.send(JSON.stringify(body))
-    } else {
-      ajax.send()
-    }
-
-    ajax.onreadystatechange = function () {
-      if (this.readyState === 4) {
-        // request finished and response is ready
-        // TREAT ERROR
-        // responseCallback(serverResponse.result.fulfillment.speech)
+    let config = {
+      method: method,
+      url: url,
+      headers: {
+        'X-Access-Token': accessToken,
+        'X-My-ID': myID,
+        'X-Store-ID': storeID,
+        'Content-Type': 'application/json'
       }
     }
+    if (body) {
+      config.data = body
+    }
+
+    axios(config)
+    .then(function (response) {
+      callback(response)
+    })
+    .catch(function (error) {
+      console.log(error)
+    })
   }
 
   return {
