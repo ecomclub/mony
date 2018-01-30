@@ -13,35 +13,45 @@ var Mony = function () {
 
     function handleResponse (serverResponse) {
       // intent name
-      let intent = serverResponse.metadata.intentName
-
+      let intent = serverResponse.result.metadata.intentName
       switch (intent) {
         // RESOURCE
         case 'general':
-          if (serverResponse.parameters.resource) {
-            endpoint = '/' + serverResponse.parameters.resource + '/schema.json'
+          let required
+          let count = 0
+          if (serverResponse.result.parameters.resource) {
+            endpoint = serverResponse.result.parameters.resource + '/schema.json'
             method = 'GET'
-            // callback = function (response) {
-            //   let msg = 'Me passe as seguintes propriedades: '
-            //   for (let i = 0; i < response.required; i++) {
-            //     msg += response.required[i]
-            //   }
-            //   let promise = client.textRequest(msg)
-            //   sendDialogFlow(promise)
-            // }
+
             // buscando o schema do resource
-            sendApi(endpoint, method, body, callback)
+            sendApi(endpoint, method, function (response) {
+              for (let i = 0; i < response.data.required.length; i++) {
+                required.push(response.data.required[i])
+                let promise = client.textRequest('Basico: ' + required[count])
+                sendDialogFlow(promise)
+                count++
+              }
+            })
+          }
+          break
+        case 'basico-custom':
+          body = {}
+          body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
+          if (count < required.length) {
+            let promise = client.textRequest('Basico: ' + required[count])
+            sendDialogFlow(promise)
+            count++
           }
           break
         case 'cadastro.de.login.por.rede.social':
           // get the social media and return to dialogflow
-          let redesocial = serverResponse.parameters.redesocial
+          let redesocial = serverResponse.result.parameters.redesocial
           let promise = client.textRequest('Como criar login pelo ' + redesocial + ' ?')
           sendDialogFlow(promise)
           break
         case 'deletar produtos':
           // send a delete request to Api
-          endpoint = '/products/' + serverResponse.parameters.id + '.json'
+          endpoint = '/products/' + serverResponse.result.parameters.id + '.json'
           method = 'DELETE'
           sendApi(endpoint, body, method)
           break
