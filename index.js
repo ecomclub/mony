@@ -4,74 +4,92 @@ const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee
 
 var Mony = function () {
   let accessToken, myID, storeID, responseCallback, actionCallback
-
+  let count
+  let body
+  let method, endpoint, schema
   let sendDialogFlow = function (promise, callback) {
-    let method, body, endpoint
     promise
-        .then(handleResponse)
-        .catch(handleError)
+      .then(handleResponse)
+      .catch(handleError)
 
     function handleResponse (serverResponse) {
-      // intent name
+       // intent name
+      console.log(serverResponse.result.fulfillment.speech)
       let intent = serverResponse.result.metadata.intentName
       switch (intent) {
         // RESOURCE
         case 'general':
-          let required
-          let count = 0
+          count = 0
+          body = {}
           if (serverResponse.result.parameters.resource) {
             endpoint = serverResponse.result.parameters.resource + '/schema.json'
             method = 'GET'
-
-            // buscando o schema do resource
-            sendApi(endpoint, method, function (response) {
-              for (let i = 0; i < response.data.required.length; i++) {
-                required.push(response.data.required[i])
-                let promise = client.textRequest('Basico: ' + required[count])
-                sendDialogFlow(promise)
-                count++
-              }
+            // get schema resource
+            sendApi(endpoint, method, body, function (response) {
+              schema = response
+              promise = client.textRequest('Basico: ' + schema.data.required[count])
+              count++
+              sendDialogFlow(promise)
             })
           }
           break
-        case 'basico-custom':
-          body = {}
+
+        case 'basico - custom':
+          // add required element to body
           body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
-          if (count < required.length) {
-            let promise = client.textRequest('Basico: ' + required[count])
+          // more required elements to add
+          if (count < schema.data.required.length) {
+            promise = client.textRequest('Basico: ' + schema.data.required[count])
             sendDialogFlow(promise)
             count++
+          } else {
+            promise = client.textRequest('propriedade extra')
+            sendDialogFlow(promise)
           }
           break
-        case 'cadastro.de.login.por.rede.social':
-          // get the social media and return to dialogflow
-          let redesocial = serverResponse.result.parameters.redesocial
-          let promise = client.textRequest('Como criar login pelo ' + redesocial + ' ?')
+
+        case 'extra - no':
+          // send body to Api
+          console.log(body)
+          endpoint = serverResponse.result.parameters.resource + '.json'
+          method = serverResponse.result.parameters.action
+          sendApi(endpoint, method, body)
+          break
+
+        case 'extra - yes - custom - custom':
+          if (serverResponse.result.parameters.property === 'price') {
+            body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
+          }
+
+          promise = client.textRequest('propriedade extra')
           sendDialogFlow(promise)
           break
-        case 'deletar produtos':
-          // send a delete request to Api
-          endpoint = '/products/' + serverResponse.result.parameters.id + '.json'
-          method = 'DELETE'
-          sendApi(endpoint, body, method)
+
+        case 'cadastro.de.login.por.rede.social':
+        // get the social media and return to dialogflow
+          let redesocial = serverResponse.result.parameters.redesocial
+          promise = client.textRequest('Como criar login pelo ' + redesocial + ' ?')
+          sendDialogFlow(promise)
           break
+
         default:
-          // response from dialogflow
+        // response from dialogflow
           for (let i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
             responseCallback(serverResponse.result.fulfillment.message[i])
           }
       }
     }
-    // Error Handling
+     // Error Handling
     function handleError (serverError) {
-      // change to logger
+    // change to logger
       console.log(serverError)
     }
   }
 
   let sendApi = function (endpoint, method, body, callback) {
-    // using axios for HTTPS request
+  // using axios for HTTPS request
     let url = 'https://sandbox.e-com.plus/v1/' + endpoint
+    console.log(url)
     let config = {
       method: method,
       url: url,
@@ -82,13 +100,19 @@ var Mony = function () {
         'Content-Type': 'application/json'
       }
     }
-    if (body) {
+
+    if (typeof body === 'object') {
       config.data = body
     }
 
     axios(config)
     .then(function (response) {
-      callback(response)
+      /* endpoint = '' */
+      if (callback) {
+        callback(response)
+      } else {
+        console.log(response)
+      }
     })
     .catch(function (error) {
       console.log(error)
