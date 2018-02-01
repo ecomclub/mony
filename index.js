@@ -22,15 +22,20 @@ var Mony = function () {
           count = 0
           body = {}
           if (serverResponse.result.parameters.resource) {
-            endpoint = serverResponse.result.parameters.resource + '/schema.json'
-            method = 'GET'
-            // get schema resource
-            sendApi(endpoint, method, body, function (response) {
-              schema = response
-              promise = client.textRequest('Basico: ' + schema.data.required[count])
-              count++
+            if (serverResponse.result.parameters.action === 'POST') {
+              endpoint = serverResponse.result.parameters.resource + '/schema.json'
+              method = 'GET'
+              // get schema resource
+              sendApi(endpoint, method, body, function (response) {
+                schema = response
+                promise = client.textRequest('Basico: ' + schema.data.required[count])
+                count++
+                sendDialogFlow(promise)
+              })
+            } else if (serverResponse.result.parameters.action === 'DELETE') {
+              promise = client.textRequest('delete product')
               sendDialogFlow(promise)
-            })
+            }
           }
           break
 
@@ -57,14 +62,26 @@ var Mony = function () {
           break
 
         case 'extra - yes - custom - custom':
-          if (serverResponse.result.parameters.property === 'price') {
-            body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
+          for (var key in schema.data.properties) {
+            if (schema.data.properties.hasOwnProperty(key)) {
+              if (serverResponse.result.parameters.value === schema.data.properties[key].type) {
+                body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
+              } else if (schema.data.properties[key].type === 'number' || schema.data.properties[key].type === 'number') {
+                body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
+              } else if (schema.data.properties[key].type === 'array') {
+                body[serverResponse.result.parameters.property] = [serverResponse.result.parameters.value]
+              }
+            }
           }
 
           promise = client.textRequest('propriedade extra')
           sendDialogFlow(promise)
           break
-
+        case 'produtos.deletar - custom':
+          endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
+          method = serverResponse.result.parameters.action
+          sendApi(endpoint, method)
+          break
         case 'cadastro.de.login.por.rede.social':
         // get the social media and return to dialogflow
           let redesocial = serverResponse.result.parameters.redesocial
