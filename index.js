@@ -6,7 +6,7 @@ var Mony = function () {
   let accessToken, myID, storeID, responseCallback, actionCallback
   let count
   let body
-  let method, endpoint, schema
+  let method, endpoint, schema, msg
   let sendDialogFlow = function (promise, callback) {
     promise
       .then(handleResponse)
@@ -28,7 +28,62 @@ var Mony = function () {
               // get schema resource
               sendApi(endpoint, method, body, function (response) {
                 schema = response
-                promise = client.textRequest('Basico: ' + schema.data.required[count])
+                switch (schema.data.required[count]) {
+                  case 'name':
+                  case 'display_name':
+                    msg = 'o nome'
+                    break
+                  case 'price':
+                    msg = 'o preço'
+                    break
+                  case 'title':
+                    msg = 'o titulo'
+                    break
+                  case 'quantity':
+                    msg = 'a quantidade'
+                    break
+                  case 'grid_id':
+                    msg = 'o id do grid'
+                    break
+                  case 'financial_email':
+                  case 'main_email':
+                    msg = 'o email'
+                    break
+                  case 'amount':
+                    msg = 'o total'
+                    break
+                  case 'app_id':
+                    msg = 'o id do aplicativo'
+                    break
+                  case 'version':
+                    msg = 'a versão'
+                    break
+                  case 'resource':
+                    msg = 'o recurso'
+                    break
+                  case 'action':
+                    msg = 'a ação'
+                    break
+                  case 'method':
+                    msg = 'o método'
+                    break
+                  case 'segment_id':
+                    msg = 'id do segmento'
+                    break
+                  case 'doc_type':
+                    msg = 'tipo de documento'
+                    break
+                  case 'doc_number':
+                    msg = 'número do documento'
+                    break
+                  case 'corporate_name':
+                    msg = 'nome da empresa'
+                    break
+                  default:
+                    msg = schema.data.required[count]
+                    break
+                }
+                promise = client.textRequest('Basico: ' + msg)
                 count++
                 sendDialogFlow(promise)
               })
@@ -77,11 +132,13 @@ var Mony = function () {
           promise = client.textRequest('propriedade extra')
           sendDialogFlow(promise)
           break
+
         case 'produtos.deletar - custom':
           endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
           method = serverResponse.result.parameters.action
           sendApi(endpoint, method)
           break
+
         case 'cadastro.de.login.por.rede.social':
         // get the social media and return to dialogflow
           let redesocial = serverResponse.result.parameters.redesocial
