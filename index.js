@@ -6,15 +6,15 @@ var Mony = function () {
   let accessToken, myID, storeID, responseCallback, actionCallback
   let count
   let body
-  let method, endpoint, schema, msg
+  let method, endpoint, schema, type, property
   let sendDialogFlow = function (promise, callback) {
     promise
       .then(handleResponse)
       .catch(handleError)
 
     function handleResponse (serverResponse) {
-       // intent name
-      console.log(serverResponse.result.fulfillment.speech)
+        // intent name
+      console.log(serverResponse)
       let intent = serverResponse.result.metadata.intentName
       switch (intent) {
         // RESOURCE
@@ -23,122 +23,136 @@ var Mony = function () {
           body = {}
           if (serverResponse.result.parameters.resource) {
             if (serverResponse.result.parameters.action === 'POST') {
-              endpoint = serverResponse.result.parameters.resource + '/schema.json'
-              method = 'GET'
-              // get schema resource
-              sendApi(endpoint, method, body, function (response) {
-                schema = response
-                switch (schema.data.required[count]) {
-                  case 'name':
-                  case 'display_name':
-                    msg = 'o nome'
-                    break
-                  case 'price':
-                    msg = 'o preço'
-                    break
-                  case 'title':
-                    msg = 'o titulo'
-                    break
-                  case 'quantity':
-                    msg = 'a quantidade'
-                    break
-                  case 'grid_id':
-                    msg = 'o id do grid'
-                    break
-                  case 'financial_email':
-                  case 'main_email':
-                    msg = 'o email'
-                    break
-                  case 'amount':
-                    msg = 'o total'
-                    break
-                  case 'app_id':
-                    msg = 'o id do aplicativo'
-                    break
-                  case 'version':
-                    msg = 'a versão'
-                    break
-                  case 'resource':
-                    msg = 'o recurso'
-                    break
-                  case 'action':
-                    msg = 'a ação'
-                    break
-                  case 'method':
-                    msg = 'o método'
-                    break
-                  case 'segment_id':
-                    msg = 'id do segmento'
-                    break
-                  case 'doc_type':
-                    msg = 'tipo de documento'
-                    break
-                  case 'doc_number':
-                    msg = 'número do documento'
-                    break
-                  case 'corporate_name':
-                    msg = 'nome da empresa'
-                    break
-                  default:
-                    msg = schema.data.required[count]
-                    break
-                }
-                promise = client.textRequest('Basico: ' + msg)
-                count++
-                sendDialogFlow(promise)
-              })
+              promise = client.textRequest('crie: ' + serverResponse.result.parameters.resource)
+              sendDialogFlow(promise)
             } else if (serverResponse.result.parameters.action === 'DELETE') {
-              promise = client.textRequest('delete product')
+              promise = client.textRequest('delete ' + serverResponse.result.parameters.resource)
+              sendDialogFlow(promise)
+            } else if (serverResponse.result.parameters.action === 'PATCH') {
+              promise = client.textRequest('editar ' + serverResponse.result.parameters.resource)
               sendDialogFlow(promise)
             }
           }
           break
 
-        case 'basico - custom':
-          // add required element to body
-          body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
-          // more required elements to add
+        // POST RESOURCE
+        case 'resource - post':
+          endpoint = serverResponse.result.parameters.resource + '/schema.json'
+          method = 'GET'
+         // get schema resource
+          sendApi(endpoint, method, body, function (response) {
+            schema = response
+            promise = client.textRequest('Basico: ' + schema.data.required[count])
+            sendDialogFlow(promise)
+          })
+          break
+
+        case 'resource - post - basico - value':
+         // add required element to body
+          type = typeof serverResponse.result.parameters.value
+          property = false
+          for (let key in schema.data.properties) {
+            if (key === serverResponse.result.parameters.property) {
+              property = true
+              if (schema.data.properties[key].type === 'number') {
+                schema.data.required[count] = parseInt(serverResponse.result.parameters.value)
+              } else if (type === schema.data.properties[key].type) {
+                schema.data.required[count] = serverResponse.result.parameters.value
+              }
+            }
+          }
+          if (property === false) {
+            console.log('Não existe esta propriedade para este recurso')
+          }
+          count++
+          console.log(body)
+         // more required elements to add
           if (count < schema.data.required.length) {
             promise = client.textRequest('Basico: ' + schema.data.required[count])
             sendDialogFlow(promise)
-            count++
           } else {
             promise = client.textRequest('propriedade extra')
             sendDialogFlow(promise)
           }
           break
 
-        case 'extra - no':
-          // send body to Api
-          console.log(body)
+        case 'resource - post - extra - no':
           endpoint = serverResponse.result.parameters.resource + '.json'
-          method = serverResponse.result.parameters.action
-          sendApi(endpoint, method, body)
+          method = 'POST'
+          sendApi(endpoint, method, body, function (response) {
+            responseCallback('O produto foi criado, seu id é: ' + response.data._id)
+          })
           break
 
-        case 'extra - yes - custom - custom':
-          for (var key in schema.data.properties) {
-            if (schema.data.properties.hasOwnProperty(key)) {
-              if (serverResponse.result.parameters.value === schema.data.properties[key].type) {
-                body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
-              } else if (schema.data.properties[key].type === 'number' || schema.data.properties[key].type === 'number') {
+        case 'resource - post - extra - yes - property - value':
+          type = typeof serverResponse.result.parameters.value
+          property = false
+          for (let key in schema.data.properties) {
+            if (key === serverResponse.result.parameters.property) {
+              property = true
+              if (schema.data.properties[key].type === 'number') {
                 body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
-              } else if (schema.data.properties[key].type === 'array') {
-                body[serverResponse.result.parameters.property] = [serverResponse.result.parameters.value]
+              } else if (type === schema.data.properties[key].type) {
+                body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
               }
             }
           }
-
+          if (property === false) {
+            console.log('Não existe esta propriedade para este recurso')
+          }
           promise = client.textRequest('propriedade extra')
           sendDialogFlow(promise)
           break
 
-        case 'produtos.deletar - custom':
+        // EDIT RESOURCE
+        case 'resource - edit':
+          endpoint = serverResponse.result.parameters.resource + '/schema.json'
+          method = 'GET'
+         // get schema resource
+          sendApi(endpoint, method, body, function (response) {
+            schema = response
+          })
+          break
+
+        case 'edit - id - property - value':
+          type = typeof serverResponse.result.parameters.value
+          property = false
+          for (let key in schema.data.properties) {
+            if (key === serverResponse.result.parameters.property) {
+              property = true
+              if (schema.data.properties[key].type === 'number') {
+                body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
+              } else if (type === schema.data.properties[key].type) {
+                body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
+              }
+            }
+          }
+          if (property === false) {
+            console.log('Não existe esta propriedade para este recurso')
+          }
+          promise = client.textRequest('propriedade extra')
+          sendDialogFlow(promise)
+          break
+
+        case 'edit - id - property - value - yes':
+          promise = client.textRequest('id: ' + serverResponse.result.parameters.id)
+          sendDialogFlow(promise)
+          break
+
+        case 'edit - id - property - value - no':
+          endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
+          method = 'PATCH'
+          sendApi(endpoint, method, body)
+          break
+
+        // DELETE RESOURCE
+        case 'delete - id':
           endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
           method = serverResponse.result.parameters.action
           sendApi(endpoint, method)
           break
 
+        // SOCIAL MEDIA
         case 'cadastro.de.login.por.rede.social':
         // get the social media and return to dialogflow
           let redesocial = serverResponse.result.parameters.redesocial
@@ -146,6 +160,15 @@ var Mony = function () {
           sendDialogFlow(promise)
           break
 
+        case 'login.Google - no':
+          promise = client.textRequest('Como criar login pelo Google ?')
+          sendDialogFlow(promise)
+          break
+
+        case 'login.WindowsLive - no':
+          promise = client.textRequest('Como criar login pelo Windows Live ?')
+          sendDialogFlow(promise)
+          break
         default:
         // response from dialogflow
           for (let i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
@@ -153,12 +176,71 @@ var Mony = function () {
           }
       }
     }
-     // Error Handling
+      // Error Handling
     function handleError (serverError) {
-    // change to logger
+     // change to logger
       console.log(serverError)
     }
   }
+
+  // let mapping = function (response) {
+  //   switch (response) {
+  //     case 'name':
+  //     case 'display_name':
+  //       msg = 'o nome'
+  //       break
+  //     case 'price':
+  //       msg = 'o preço'
+  //       break
+  //     case 'title':
+  //       msg = 'o titulo'
+  //       break
+  //     case 'quantity':
+  //       msg = 'a quantidade'
+  //       break
+  //     case 'grid_id':
+  //       msg = 'o id do grid'
+  //       break
+  //     case 'financial_email':
+  //     case 'main_email':
+  //       msg = 'o email'
+  //       break
+  //     case 'amount':
+  //       msg = 'o total'
+  //       break
+  //     case 'app_id':
+  //       msg = 'o id do aplicativo'
+  //       break
+  //     case 'version':
+  //       msg = 'a versão'
+  //       break
+  //     case 'resource':
+  //       msg = 'o recurso'
+  //       break
+  //     case 'action':
+  //       msg = 'a ação'
+  //       break
+  //     case 'method':
+  //       msg = 'o método'
+  //       break
+  //     case 'segment_id':
+  //       msg = 'id do segmento'
+  //       break
+  //     case 'doc_type':
+  //       msg = 'tipo de documento'
+  //       break
+  //     case 'doc_number':
+  //       msg = 'número do documento'
+  //       break
+  //     case 'corporate_name':
+  //       msg = 'nome da empresa'
+  //       break
+  //     default:
+  //       msg = schema.data.required[count]
+  //       break
+  //   }
+  //   return msg
+  // }
 
   let sendApi = function (endpoint, method, body, callback) {
   // using axios for HTTPS request
