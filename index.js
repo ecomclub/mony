@@ -1,12 +1,21 @@
 'use strict'
 
+var isNodeJs = false
+// Verify if the script is Node JS
+if (typeof module !== 'undefined' && module.exports) {
+  isNodeJs = true
+}
+
+/* global ApiAi */
 const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
-  let accessToken, myID, storeID, responseCallback, actionCallback
-  let count
-  let body
-  let method, endpoint, schema, type, property
+  let accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property
+
+  if (isNodeJs) {
+    https = require('https')
+  }
+
   let sendDialogFlow = function (promise, callback) {
     promise
       .then(handleResponse)
@@ -16,164 +25,213 @@ var Mony = function () {
         // intent name
       console.log(serverResponse)
       let intent = serverResponse.result.metadata.intentName
-      switch (intent) {
-        // RESOURCE
-        case 'general':
-          count = 0
-          body = {}
-          if (serverResponse.result.parameters.resource) {
-            if (serverResponse.result.parameters.action === 'POST') {
-              promise = client.textRequest('crie: ' + serverResponse.result.parameters.resource)
-              sendDialogFlow(promise)
-            } else if (serverResponse.result.parameters.action === 'DELETE') {
-              promise = client.textRequest('delete ' + serverResponse.result.parameters.resource)
-              sendDialogFlow(promise)
-            } else if (serverResponse.result.parameters.action === 'PATCH') {
-              promise = client.textRequest('editar ' + serverResponse.result.parameters.resource)
-              sendDialogFlow(promise)
-            }
-          }
-          break
-
-        // POST RESOURCE
-        case 'resource - post':
-          endpoint = serverResponse.result.parameters.resource + '/schema.json'
-          method = 'GET'
-         // get schema resource
-          sendApi(endpoint, method, body, function (response) {
-            schema = response
-            promise = client.textRequest('Basico: ' + schema.data.required[count])
-            sendDialogFlow(promise)
-          })
-          break
-
-        case 'resource - post - basico - value':
-         // add required element to body
-          type = typeof serverResponse.result.parameters.value
-          property = false
-          for (let key in schema.data.properties) {
-            if (key === serverResponse.result.parameters.property) {
-              property = true
-              if (schema.data.properties[key].type === 'number') {
-                schema.data.required[count] = parseInt(serverResponse.result.parameters.value)
-              } else if (type === schema.data.properties[key].type) {
-                schema.data.required[count] = serverResponse.result.parameters.value
+      if (intent) {
+        switch (intent) {
+          // RESOURCE
+          case 'general':
+            count = 0
+            body = {}
+            if (serverResponse.result.parameters.resource) {
+              if (serverResponse.result.parameters.action === 'POST') {
+                promise = client.textRequest('crie: ' + serverResponse.result.parameters.resource)
+                sendDialogFlow(promise)
+              } else if (serverResponse.result.parameters.action === 'DELETE') {
+                promise = client.textRequest('delete ' + serverResponse.result.parameters.resource)
+                sendDialogFlow(promise)
+              } else if (serverResponse.result.parameters.action === 'PATCH') {
+                promise = client.textRequest('editar ' + serverResponse.result.parameters.resource)
+                sendDialogFlow(promise)
               }
             }
-          }
-          if (property === false) {
-            console.log('Não existe esta propriedade para este recurso')
-          }
-          count++
-          console.log(body)
-         // more required elements to add
-          if (count < schema.data.required.length) {
-            promise = client.textRequest('Basico: ' + schema.data.required[count])
-            sendDialogFlow(promise)
-          } else {
+            break
+
+          // POST RESOURCE
+          case 'resource - post':
+            endpoint = serverResponse.result.parameters.resource + '/schema.json'
+            method = 'GET'
+           // get schema resource
+            sendApi(endpoint, method, body, function (response) {
+              schema = response
+              // verify the type of the property
+              for (let key in schema.data.properties) {
+                if (schema.data.required[count] === key) {
+                  if (schema.data.properties[key].type !== 'object') {
+                    promise = client.textRequest('Basico: ' + schema.data.required[count])
+                    sendDialogFlow(promise)
+                  }
+                }
+              }
+            })
+            break
+
+          // add required properties to body
+          case 'resource - post - basico - value':
+           // add required element to body
+            type = typeof serverResponse.result.parameters.value
+            property = false
+            // verify the type of the property
+            for (let key in schema.data.properties) {
+              if (key === serverResponse.result.parameters.property) {
+                property = true
+                if (schema.data.properties[key].type === 'number') {
+                  schema.data.required[count] = parseInt(serverResponse.result.parameters.value)
+                } else if (type === schema.data.properties[key].type) {
+                  schema.data.required[count] = serverResponse.result.parameters.value
+                }
+              }
+            }
+            if (property === false) {
+              console.log('Não existe esta propriedade para este recurso')
+            }
+            count++
+           // more required elements to add
+            if (count < schema.data.required.length) {
+              for (let key in schema.data.properties) {
+                if (schema.data.required[count] === key) {
+                  if (schema.data.properties[key].type !== 'object') {
+                    promise = client.textRequest('Basico: ' + schema.data.required[count])
+                    sendDialogFlow(promise)
+                  }
+                }
+              }
+            } else {
+              // verify if more properties will be add
+              promise = client.textRequest('propriedade extra')
+              sendDialogFlow(promise)
+            }
+            break
+
+          // send post to api
+          case 'resource - post - extra - no':
+            endpoint = serverResponse.result.parameters.resource + '.json'
+            method = 'POST'
+            sendApi(endpoint, method, body, function (response) {
+              responseCallback('O' + serverResponse.result.parameters.resource + 'foi criado, seu id é: ' + response.data._id)
+            })
+            break
+
+          // add extra property to body
+          case 'resource - post - extra - yes - property - value':
+            type = typeof serverResponse.result.parameters.value
+            property = false
+            for (let key in schema.data.properties) {
+              if (key === serverResponse.result.parameters.property) {
+                property = true
+                // if the value of the property is number, parse the response value of dialogflow
+                if (schema.data.properties[key].type === 'number') {
+                  body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
+                } else if (type === schema.data.properties[key].type) {
+                  body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
+                }
+              }
+            }
+            if (property === false) {
+              console.log('Não existe esta propriedade para este recurso')
+            }
             promise = client.textRequest('propriedade extra')
             sendDialogFlow(promise)
-          }
-          break
+            break
 
-        case 'resource - post - extra - no':
-          endpoint = serverResponse.result.parameters.resource + '.json'
-          method = 'POST'
-          sendApi(endpoint, method, body, function (response) {
-            responseCallback('O produto foi criado, seu id é: ' + response.data._id)
-          })
-          break
+          // EDIT RESOURCE
+          case 'resource - edit':
+            endpoint = serverResponse.result.parameters.resource + '/schema.json'
+            method = 'GET'
+           // get schema resource
+            sendApi(endpoint, method, body, function (response) {
+              schema = response
+            })
+            break
 
-        case 'resource - post - extra - yes - property - value':
-          type = typeof serverResponse.result.parameters.value
-          property = false
-          for (let key in schema.data.properties) {
-            if (key === serverResponse.result.parameters.property) {
-              property = true
-              if (schema.data.properties[key].type === 'number') {
-                body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
-              } else if (type === schema.data.properties[key].type) {
-                body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
+          // add property to body
+          case 'edit - id - property - value':
+            type = typeof serverResponse.result.parameters.value
+            property = false
+            for (let key in schema.data.properties) {
+              if (key === serverResponse.result.parameters.property) {
+                property = true
+                if (schema.data.properties[key].type === 'number') {
+                  body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
+                } else if (type === schema.data.properties[key].type) {
+                  body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
+                }
               }
             }
-          }
-          if (property === false) {
-            console.log('Não existe esta propriedade para este recurso')
-          }
-          promise = client.textRequest('propriedade extra')
-          sendDialogFlow(promise)
-          break
-
-        // EDIT RESOURCE
-        case 'resource - edit':
-          endpoint = serverResponse.result.parameters.resource + '/schema.json'
-          method = 'GET'
-         // get schema resource
-          sendApi(endpoint, method, body, function (response) {
-            schema = response
-          })
-          break
-
-        case 'edit - id - property - value':
-          type = typeof serverResponse.result.parameters.value
-          property = false
-          for (let key in schema.data.properties) {
-            if (key === serverResponse.result.parameters.property) {
-              property = true
-              if (schema.data.properties[key].type === 'number') {
-                body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
-              } else if (type === schema.data.properties[key].type) {
-                body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
-              }
+            if (property === false) {
+              console.log('Não existe esta propriedade para este recurso')
             }
+            promise = client.textRequest('propriedade extra')
+            sendDialogFlow(promise)
+            break
+
+          // id do recurso para editar
+          case 'edit - id - property - value - yes':
+            promise = client.textRequest('id: ' + serverResponse.result.parameters.id)
+            sendDialogFlow(promise)
+            break
+
+          // send edit to api
+          case 'edit - id - property - value - no':
+            endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
+            method = 'PATCH'
+            sendApi(endpoint, method, body)
+            break
+
+          // DELETE RESOURCE
+          case 'delete - id':
+            endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
+            method = serverResponse.result.parameters.action
+            sendApi(endpoint, method)
+            break
+
+          // SOCIAL MEDIA
+          case 'cadastro.de.login.por.rede.social':
+          // get the social media and return to dialogflow
+            let redesocial = serverResponse.result.parameters.redesocial
+            promise = client.textRequest('Como criar login pelo ' + redesocial + ' ?')
+            sendDialogFlow(promise)
+            break
+
+          // resend the tutorial to client
+          case 'login.Google - no':
+            promise = client.textRequest('Como criar login pelo Google ?')
+            sendDialogFlow(promise)
+            break
+
+          // resend the tutorial to client
+          case 'login.WindowsLive - no':
+            promise = client.textRequest('Como criar login pelo Windows Live ?')
+            sendDialogFlow(promise)
+            break
+          default:
+          // response from dialogflow
+            for (let i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
+              responseCallback(serverResponse.result.fulfillment.message[i])
+            }
+        }
+      } else {
+        // discuss
+        // parameters to search on discurss
+        let parameters = serverResponse.result.contexts.parameters
+        // url to search
+        let url = 'https://meta.discourse.org/search.json?q=api'
+        let config = {
+          method: method,
+          url: url
+        }
+
+        /* global axios */
+        axios(config)
+        .then(function (response) {
+          /* endpoint = '' */
+          if (callback) {
+            callback(response)
+          } else {
+            console.log(response)
           }
-          if (property === false) {
-            console.log('Não existe esta propriedade para este recurso')
-          }
-          promise = client.textRequest('propriedade extra')
-          sendDialogFlow(promise)
-          break
-
-        case 'edit - id - property - value - yes':
-          promise = client.textRequest('id: ' + serverResponse.result.parameters.id)
-          sendDialogFlow(promise)
-          break
-
-        case 'edit - id - property - value - no':
-          endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
-          method = 'PATCH'
-          sendApi(endpoint, method, body)
-          break
-
-        // DELETE RESOURCE
-        case 'delete - id':
-          endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
-          method = serverResponse.result.parameters.action
-          sendApi(endpoint, method)
-          break
-
-        // SOCIAL MEDIA
-        case 'cadastro.de.login.por.rede.social':
-        // get the social media and return to dialogflow
-          let redesocial = serverResponse.result.parameters.redesocial
-          promise = client.textRequest('Como criar login pelo ' + redesocial + ' ?')
-          sendDialogFlow(promise)
-          break
-
-        case 'login.Google - no':
-          promise = client.textRequest('Como criar login pelo Google ?')
-          sendDialogFlow(promise)
-          break
-
-        case 'login.WindowsLive - no':
-          promise = client.textRequest('Como criar login pelo Windows Live ?')
-          sendDialogFlow(promise)
-          break
-        default:
-        // response from dialogflow
-          for (let i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
-            responseCallback(serverResponse.result.fulfillment.message[i])
-          }
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
       }
     }
       // Error Handling
@@ -244,6 +302,8 @@ var Mony = function () {
 
   let sendApi = function (endpoint, method, body, callback) {
   // using axios for HTTPS request
+    let host = 'api.e-com.plus'
+    let path = '/v1'
     let url = 'https://sandbox.e-com.plus/v1/' + endpoint
     console.log(url)
     let config = {
@@ -261,18 +321,56 @@ var Mony = function () {
       config.data = body
     }
 
-    axios(config)
-    .then(function (response) {
-      /* endpoint = '' */
-      if (callback) {
-        callback(response)
-      } else {
-        console.log(response)
+    if (isNodeJs) {
+      // call with NodeJS http module
+      let options = {
+        hostname: host,
+        path: path,
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Store-ID': storeID
+        }
       }
-    })
-    .catch(function (error) {
-      console.log(error)
-    })
+
+      let req = https.request(options, function (res) {
+        // let rawData = ''
+        res.setEncoding('utf8')
+        res.on('data', function (chunk) {
+          // buffer
+          // rawData += chunk
+        })
+        res.on('end', function () {
+          // treat response
+          // response(res.statusCode, rawData, callback)
+        })
+      })
+
+      req.on('error', function (err) {
+        console.error(err)
+        // callback with null body
+        callback(err, null)
+      })
+
+      if (body) {
+        // send JSON body
+        req.write(JSON.stringify(body))
+      }
+      req.end()
+    } else {
+      axios(config)
+      .then(function (response) {
+        /* endpoint = '' */
+        if (callback) {
+          callback(response)
+        } else {
+          console.log(response)
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
+    }
   }
 
   return {
@@ -317,3 +415,7 @@ var Mony = function () {
 }
 
 Mony = Mony()
+
+if (isNodeJs) {
+  module.exports = Mony
+}
