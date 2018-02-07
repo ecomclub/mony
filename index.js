@@ -10,7 +10,7 @@ if (typeof module !== 'undefined' && module.exports) {
 const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
-  let accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property
+  let accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property, action
 
   if (isNodeJs) {
     https = require('https')
@@ -58,6 +58,11 @@ var Mony = function () {
                   if (schema.data.properties[key].type !== 'object') {
                     promise = client.textRequest('Basico: ' + schema.data.required[count])
                     sendDialogFlow(promise)
+                  } else {
+                    action = {
+                      'link': 'pagina de criação do resource'
+                    }
+                    actionCallback(action)
                   }
                 }
               }
@@ -210,13 +215,15 @@ var Mony = function () {
         }
       } else {
         // discuss
-        // parameters to search on discurss
-        let parameters = serverResponse.result.contexts.parameters
         // url to search
-        let url = 'https://meta.discourse.org/search.json?q=api'
+        let url = 'https://meta.discourse.org/search.json?q=' + serverResponse.result.resolvedQuery
         let config = {
-          method: method,
-          url: url
+          method: 'GET',
+          url: url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
         }
 
         /* global axios */
@@ -328,21 +335,24 @@ var Mony = function () {
         path: path,
         method: method,
         headers: {
-          'Content-Type': 'application/json',
-          'X-Store-ID': storeID
+          'X-Access-Token': accessToken,
+          'X-My-ID': myID,
+          'X-Store-ID': storeID,
+          'Content-Type': 'application/json'
         }
       }
 
       let req = https.request(options, function (res) {
-        // let rawData = ''
+        let rawData = ''
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
           // buffer
-          // rawData += chunk
+          rawData += chunk
         })
         res.on('end', function () {
           // treat response
-          // response(res.statusCode, rawData, callback)
+          /* global response */
+          response(res.statusCode, rawData, callback)
         })
       })
 
