@@ -231,7 +231,12 @@ var Mony = function () {
         .then(function (response) {
           /* endpoint = '' */
           if (callback) {
-            callback(response)
+            for (var key in response.posts) {
+              if (response.posts.hasOwnProperty(key)) {
+                // link
+                responseCallback(response.posts.blurb)
+              }
+            }
           } else {
             console.log(response)
           }
