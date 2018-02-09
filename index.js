@@ -10,7 +10,7 @@ if (typeof module !== 'undefined' && module.exports) {
 const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
-  let accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property, action
+  let accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property, action, logger
 
   if (isNodeJs) {
     https = require('https')
@@ -234,7 +234,7 @@ var Mony = function () {
             for (var key in response.posts) {
               if (response.posts.hasOwnProperty(key)) {
                 // link
-                responseCallback(response.posts.blurb)
+                responseCallback('https://meta.discourse.org/t/' + response.posts[key].id)
               }
             }
           } else {
@@ -356,7 +356,6 @@ var Mony = function () {
         })
         res.on('end', function () {
           // treat response
-          /* global response */
           response(res.statusCode, rawData, callback)
         })
       })
@@ -386,6 +385,48 @@ var Mony = function () {
         console.log(error)
       })
     }
+  }
+
+  let response = function (status, data, callback) {
+    // treat request response
+    let body
+    try {
+      // expecting valid JSON response body
+      body = JSON.parse(data)
+    } catch (err) {
+      logger.error(err)
+      // callback with null body
+      callback(err, null)
+      return
+    }
+
+    if (status === 200) {
+      // err null
+      callback(null, body)
+    } else {
+      let msg
+      if (body.hasOwnProperty('message')) {
+        msg = body.message
+      } else {
+        // probably an error response from Graphs or Search API
+        // not handling Neo4j and Elasticsearch errors
+        msg = 'Unknown error, see response objet to more info'
+      }
+      errorHandling(callback, msg, body)
+    }
+  }
+
+  let errorHandling = function (callback, errMsg, responseBody) {
+    if (typeof callback === 'function') {
+      let err = new Error(errMsg)
+      if (responseBody === undefined) {
+        // body null when error occurs before send API request
+        callback(err, null)
+      } else {
+        callback(err, responseBody)
+      }
+    }
+    logger.log(errMsg)
   }
 
   return {
