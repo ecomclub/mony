@@ -11,6 +11,9 @@ const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee
 
 var Mony = function () {
   let accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property, action, logger
+  let keywords
+  let size = 0
+  let url
 
   if (isNodeJs) {
     https = require('https')
@@ -207,6 +210,46 @@ var Mony = function () {
             promise = client.textRequest('Como criar login pelo Windows Live ?')
             sendDialogFlow(promise)
             break
+
+          // discuss
+          case 'keywords':
+            // url to search
+            url += serverResponse.result.parameters.keyword + '&q='
+            if (size > 0) {
+              size--
+              promise = client.textRequest('keyword: ' + keywords[size])
+              sendDialogFlow(promise)
+            } else {
+              url = url.slice(0, -3)
+              console.log(url)
+              let config = {
+                method: 'GET',
+                url: url,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                }
+              }
+                          /* global axios */
+              axios(config)
+              .then(function (response) {
+                /* endpoint = '' */
+                if (callback) {
+                  for (var key in response.posts) {
+                    if (response.posts.hasOwnProperty(key)) {
+                      // link
+                      responseCallback('https://meta.discourse.org/t/' + response.posts[key].id)
+                    }
+                  }
+                } else {
+                  console.log(response)
+                }
+              })
+              .catch(function (error) {
+                console.log(error)
+              })
+            }
+            break
           default:
           // response from dialogflow
             for (let i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
@@ -214,36 +257,18 @@ var Mony = function () {
             }
         }
       } else {
-        // discuss
-        // url to search
-        let url = 'https://meta.discourse.org/search.json?q=' + serverResponse.result.resolvedQuery
-        let config = {
-          method: 'GET',
-          url: url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+        let str = serverResponse.result.resolvedQuery
+        keywords = str.split(' ')
+        for (var i = 0; i < keywords.length; i++) {
+          if (keywords[i] !== '' || keywords[i] !== ' ' || keywords[i] !== '?') {
+            size++
           }
         }
-
-        /* global axios */
-        axios(config)
-        .then(function (response) {
-          /* endpoint = '' */
-          if (callback) {
-            for (var key in response.posts) {
-              if (response.posts.hasOwnProperty(key)) {
-                // link
-                responseCallback('https://meta.discourse.org/t/' + response.posts[key].id)
-              }
-            }
-          } else {
-            console.log(response)
-          }
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
+        console.log(keywords, size)
+        size--
+        url = 'https://meta.discourse.org/search.json?q='
+        promise = client.textRequest('keyword: ' + keywords[size])
+        sendDialogFlow(promise)
       }
     }
       // Error Handling
@@ -469,7 +494,6 @@ var Mony = function () {
     }
   }
 }
-
 Mony = Mony()
 
 if (isNodeJs) {
