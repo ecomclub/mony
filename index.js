@@ -14,6 +14,7 @@ var Mony = function () {
   let keywords
   let size = 0
   let url
+  let bool = false
 
   if (isNodeJs) {
     https = require('https')
@@ -214,6 +215,7 @@ var Mony = function () {
           // discuss
           case 'keywords':
             // url to search
+            console.log('111111')
             url += serverResponse.result.parameters.keyword + '&q='
             if (size > 0) {
               size--
@@ -257,18 +259,61 @@ var Mony = function () {
             }
         }
       } else {
-        let str = serverResponse.result.resolvedQuery
-        keywords = str.split(' ')
-        for (var i = 0; i < keywords.length; i++) {
-          if (keywords[i] !== '' || keywords[i] !== ' ' || keywords[i] !== '?') {
-            size++
+        // none intent was triggered
+        // verify if keywords already exits
+        if (bool === false) {
+          bool = true
+          let str = serverResponse.result.resolvedQuery
+          keywords = str.split(' ')
+          for (var i = 0; i < keywords.length; i++) {
+            if (keywords[i] !== '' || keywords[i] !== ' ' || keywords[i] !== '?') {
+              size++
+            }
+          }
+          // do the first request
+          size--
+          url = 'https://meta.discourse.org/search.json?q='
+          promise = client.textRequest('keyword: ' + keywords[size])
+          sendDialogFlow(promise)
+        } else {
+          if (size > 0) {
+            size--
+            promise = client.textRequest('keyword: ' + keywords[size])
+            sendDialogFlow(promise)
+          } else {
+            // remove the last 3 letters '&q='
+            url = url.slice(0, -3)
+            console.log(url)
+            let config = {
+              method: 'GET',
+              url: url,
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+            }
+
+            /* global axios */
+            // do the request
+            axios(config)
+            .then(function (response) {
+              /* endpoint = '' */
+              if (callback) {
+                for (var key in response.posts) {
+                  if (response.posts.hasOwnProperty(key)) {
+                    // link
+                    responseCallback('https://meta.discourse.org/t/' + response.posts[key].id)
+                  }
+                }
+              } else {
+                console.log(response)
+              }
+            })
+            .catch(function (error) {
+              console.log(error)
+            })
           }
         }
-        console.log(keywords, size)
-        size--
-        url = 'https://meta.discourse.org/search.json?q='
-        promise = client.textRequest('keyword: ' + keywords[size])
-        sendDialogFlow(promise)
       }
     }
       // Error Handling
@@ -277,65 +322,6 @@ var Mony = function () {
       console.log(serverError)
     }
   }
-
-  // let mapping = function (response) {
-  //   switch (response) {
-  //     case 'name':
-  //     case 'display_name':
-  //       msg = 'o nome'
-  //       break
-  //     case 'price':
-  //       msg = 'o preço'
-  //       break
-  //     case 'title':
-  //       msg = 'o titulo'
-  //       break
-  //     case 'quantity':
-  //       msg = 'a quantidade'
-  //       break
-  //     case 'grid_id':
-  //       msg = 'o id do grid'
-  //       break
-  //     case 'financial_email':
-  //     case 'main_email':
-  //       msg = 'o email'
-  //       break
-  //     case 'amount':
-  //       msg = 'o total'
-  //       break
-  //     case 'app_id':
-  //       msg = 'o id do aplicativo'
-  //       break
-  //     case 'version':
-  //       msg = 'a versão'
-  //       break
-  //     case 'resource':
-  //       msg = 'o recurso'
-  //       break
-  //     case 'action':
-  //       msg = 'a ação'
-  //       break
-  //     case 'method':
-  //       msg = 'o método'
-  //       break
-  //     case 'segment_id':
-  //       msg = 'id do segmento'
-  //       break
-  //     case 'doc_type':
-  //       msg = 'tipo de documento'
-  //       break
-  //     case 'doc_number':
-  //       msg = 'número do documento'
-  //       break
-  //     case 'corporate_name':
-  //       msg = 'nome da empresa'
-  //       break
-  //     default:
-  //       msg = schema.data.required[count]
-  //       break
-  //   }
-  //   return msg
-  // }
 
   let sendApi = function (endpoint, method, body, callback) {
   // using axios for HTTPS request
