@@ -186,7 +186,7 @@ var Mony = function () {
             break
 
           // DELETE RESOURCE
-          case 'devare - id':
+          case 'delete - id':
             endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
             method = serverResponse.result.parameters.action
             sendApi(endpoint, method)
@@ -480,8 +480,9 @@ var Mony = function () {
     }
   }
 }
+
 Mony = Mony()
 
-if (isNodeJs) {
-  module.exports = Mony
-}
+// if (isNodeJs) {
+//   module.exports = Mony
+// }
