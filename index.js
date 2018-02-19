@@ -250,8 +250,12 @@ var Mony = function () {
             break
           default:
           // response from dialogflow
-            for (var i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
-              responseCallback(serverResponse.result.fulfillment.message[i])
+            if (serverResponse.result.fulfillment.messages.length > 1) {
+              for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
+                responseCallback(serverResponse.result.fulfillment.messages[i].speech)
+              }
+            } else {
+              responseCallback(serverResponse.result.fulfillment.speech)
             }
         }
       } else {
