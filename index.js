@@ -10,17 +10,17 @@ if (typeof module !== 'undefined' && module.exports) {
 const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
-  let accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property, action, logger
-  let keywords
-  let size = 0
-  let url
-  let bool = false
+  var accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property, action, logger
+  var keywords
+  var size = 0
+  var url
+  var bool = false
 
   if (isNodeJs) {
     https = require('https')
   }
 
-  let sendDialogFlow = function (promise, callback) {
+  var sendDialogFlow = function (promise, callback) {
     promise
       .then(handleResponse)
       .catch(handleError)
@@ -28,7 +28,7 @@ var Mony = function () {
     function handleResponse (serverResponse) {
         // intent name
       console.log(serverResponse)
-      let intent = serverResponse.result.metadata.intentName
+      var intent = serverResponse.result.metadata.intentName
       if (intent) {
         switch (intent) {
           // RESOURCE
@@ -40,7 +40,7 @@ var Mony = function () {
                 promise = client.textRequest('crie: ' + serverResponse.result.parameters.resource)
                 sendDialogFlow(promise)
               } else if (serverResponse.result.parameters.action === 'DELETE') {
-                promise = client.textRequest('delete ' + serverResponse.result.parameters.resource)
+                promise = client.textRequest('devare ' + serverResponse.result.parameters.resource)
                 sendDialogFlow(promise)
               } else if (serverResponse.result.parameters.action === 'PATCH') {
                 promise = client.textRequest('editar ' + serverResponse.result.parameters.resource)
@@ -57,7 +57,7 @@ var Mony = function () {
             sendApi(endpoint, method, body, function (response) {
               schema = response
               // verify the type of the property
-              for (let key in schema.data.properties) {
+              for (var key in schema.data.properties) {
                 if (schema.data.required[count] === key) {
                   if (schema.data.properties[key].type !== 'object') {
                     promise = client.textRequest('Basico: ' + schema.data.required[count])
@@ -79,7 +79,7 @@ var Mony = function () {
             type = typeof serverResponse.result.parameters.value
             property = false
             // verify the type of the property
-            for (let key in schema.data.properties) {
+            for (var key in schema.data.properties) {
               if (key === serverResponse.result.parameters.property) {
                 property = true
                 if (schema.data.properties[key].type === 'number') {
@@ -95,8 +95,8 @@ var Mony = function () {
             count++
            // more required elements to add
             if (count < schema.data.required.length) {
-              for (let key in schema.data.properties) {
-                if (schema.data.required[count] === key) {
+              for (var key2 in schema.data.properties) {
+                if (schema.data.required[count] === key2) {
                   if (schema.data.properties[key].type !== 'object') {
                     promise = client.textRequest('Basico: ' + schema.data.required[count])
                     sendDialogFlow(promise)
@@ -123,8 +123,8 @@ var Mony = function () {
           case 'resource - post - extra - yes - property - value':
             type = typeof serverResponse.result.parameters.value
             property = false
-            for (let key in schema.data.properties) {
-              if (key === serverResponse.result.parameters.property) {
+            for (var key3 in schema.data.properties) {
+              if (key3 === serverResponse.result.parameters.property) {
                 property = true
                 // if the value of the property is number, parse the response value of dialogflow
                 if (schema.data.properties[key].type === 'number') {
@@ -155,8 +155,8 @@ var Mony = function () {
           case 'edit - id - property - value':
             type = typeof serverResponse.result.parameters.value
             property = false
-            for (let key in schema.data.properties) {
-              if (key === serverResponse.result.parameters.property) {
+            for (var key4 in schema.data.properties) {
+              if (key4 === serverResponse.result.parameters.property) {
                 property = true
                 if (schema.data.properties[key].type === 'number') {
                   body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
@@ -186,7 +186,7 @@ var Mony = function () {
             break
 
           // DELETE RESOURCE
-          case 'delete - id':
+          case 'devare - id':
             endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
             method = serverResponse.result.parameters.action
             sendApi(endpoint, method)
@@ -195,7 +195,7 @@ var Mony = function () {
           // SOCIAL MEDIA
           case 'cadastro.de.login.por.rede.social':
           // get the social media and return to dialogflow
-            let redesocial = serverResponse.result.parameters.redesocial
+            var redesocial = serverResponse.result.parameters.RedeSocial
             promise = client.textRequest('Como criar login pelo ' + redesocial + ' ?')
             sendDialogFlow(promise)
             break
@@ -215,7 +215,6 @@ var Mony = function () {
           // discuss
           case 'keywords':
             // url to search
-            console.log('111111')
             url += serverResponse.result.parameters.keyword + '&q='
             if (size > 0) {
               size--
@@ -224,16 +223,16 @@ var Mony = function () {
             } else {
               url = url.slice(0, -3)
               console.log(url)
-              let config = {
+
+              /* global $ */
+              $.ajax({
                 method: 'GET',
                 url: url,
                 headers: {
                   'Content-Type': 'application/json',
                   'Accept': 'application/json'
                 }
-              }
-                          /* global axios */
-              axios(config)
+              })
               .then(function (response) {
                 /* endpoint = '' */
                 if (callback) {
@@ -247,14 +246,11 @@ var Mony = function () {
                   console.log(response)
                 }
               })
-              .catch(function (error) {
-                console.log(error)
-              })
             }
             break
           default:
           // response from dialogflow
-            for (let i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
+            for (var i = 0; i < serverResponse.result.fulfillment.message.length; i++) {
               responseCallback(serverResponse.result.fulfillment.message[i])
             }
         }
@@ -263,10 +259,10 @@ var Mony = function () {
         // verify if keywords already exits
         if (bool === false) {
           bool = true
-          let str = serverResponse.result.resolvedQuery
+          var str = serverResponse.result.resolvedQuery
           keywords = str.split(' ')
-          for (var i = 0; i < keywords.length; i++) {
-            if (keywords[i] !== '' || keywords[i] !== ' ' || keywords[i] !== '?') {
+          for (var y = 0; y < keywords.length; y++) {
+            if (keywords[y] !== '' || keywords[y] !== ' ' || keywords[y] !== '?') {
               size++
             }
           }
@@ -281,22 +277,20 @@ var Mony = function () {
             promise = client.textRequest('keyword: ' + keywords[size])
             sendDialogFlow(promise)
           } else {
-            // remove the last 3 letters '&q='
+            // remove the last 3 varters '&q='
             url = url.slice(0, -3)
             console.log(url)
-            let config = {
+
+            /* global $ */
+            $.ajax({
               method: 'GET',
               url: url,
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               }
-            }
-
-            /* global axios */
-            // do the request
-            axios(config)
-            .then(function (response) {
+            })
+            .done(function (response) {
               /* endpoint = '' */
               if (callback) {
                 for (var key in response.posts) {
@@ -309,9 +303,6 @@ var Mony = function () {
                 console.log(response)
               }
             })
-            .catch(function (error) {
-              console.log(error)
-            })
           }
         }
       }
@@ -323,13 +314,13 @@ var Mony = function () {
     }
   }
 
-  let sendApi = function (endpoint, method, body, callback) {
+  var sendApi = function (endpoint, method, body, callback) {
   // using axios for HTTPS request
-    let host = 'api.e-com.plus'
-    let path = '/v1'
-    let url = 'https://sandbox.e-com.plus/v1/' + endpoint
+    var host = 'api.e-com.plus'
+    var path = '/v1'
+    var url = 'https://sandbox.e-com.plus/v1/' + endpoint
     console.log(url)
-    let config = {
+    var config = {
       method: method,
       url: url,
       headers: {
@@ -346,7 +337,7 @@ var Mony = function () {
 
     if (isNodeJs) {
       // call with NodeJS http module
-      let options = {
+      var options = {
         hostname: host,
         path: path,
         method: method,
@@ -358,8 +349,8 @@ var Mony = function () {
         }
       }
 
-      let req = https.request(options, function (res) {
-        let rawData = ''
+      var req = https.request(options, function (res) {
+        var rawData = ''
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
           // buffer
@@ -383,8 +374,16 @@ var Mony = function () {
       }
       req.end()
     } else {
-      axios(config)
-      .then(function (response) {
+      /* global $ */
+      $.ajax({
+        method: 'GET',
+        url: url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+      .done(function (response) {
         /* endpoint = '' */
         if (callback) {
           callback(response)
@@ -392,15 +391,12 @@ var Mony = function () {
           console.log(response)
         }
       })
-      .catch(function (error) {
-        console.log(error)
-      })
     }
   }
 
-  let response = function (status, data, callback) {
+  var response = function (status, data, callback) {
     // treat request response
-    let body
+    var body
     try {
       // expecting valid JSON response body
       body = JSON.parse(data)
@@ -415,7 +411,7 @@ var Mony = function () {
       // err null
       callback(null, body)
     } else {
-      let msg
+      var msg
       if (body.hasOwnProperty('message')) {
         msg = body.message
       } else {
@@ -427,9 +423,9 @@ var Mony = function () {
     }
   }
 
-  let errorHandling = function (callback, errMsg, responseBody) {
+  var errorHandling = function (callback, errMsg, responseBody) {
     if (typeof callback === 'function') {
-      let err = new Error(errMsg)
+      var err = new Error(errMsg)
       if (responseBody === undefined) {
         // body null when error occurs before send API request
         callback(err, null)
@@ -455,7 +451,7 @@ var Mony = function () {
       actionCallback = ActionCallback
 
       // using JS SDK from dialogflow
-      let promise = client.textRequest('O id: ' + storeID + ' nome da loja: ' + storeName + ' dominio: ' + domain +
+      var promise = client.textRequest('O id: ' + storeID + ' nome da loja: ' + storeName + ' dominio: ' + domain +
       ' nome: ' + name + ' gênero: ' + gender + ' email: ' + email + ' id do usuário: ' + userID + ' linguagem: ' + language)
 
       // sendRequest
@@ -465,7 +461,7 @@ var Mony = function () {
     // function to send the actual page of the user to help the search
     'sendPage': function (page) {
       // using JS SDK from dialogflow
-      let promise = client.textRequest('pagina:' + page)
+      var promise = client.textRequest('pagina:' + page)
       // treatMessage
       sendDialogFlow(promise)
     },
@@ -473,7 +469,7 @@ var Mony = function () {
     // function to send message from user
     'sendMessage': function (msg, callback) {
       // using JS SDK from dialogflow
-      let promise = client.textRequest(msg)
+      var promise = client.textRequest(msg)
 
       // treatMessage
       sendDialogFlow(promise, callback)
