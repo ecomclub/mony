@@ -20,6 +20,18 @@
   "author": "E-Com Club",
   "license": "MIT",
   "private": true,
+  "standard": {
+    "globals": [
+      "XMLHttpRequest",
+      "XDomainRequest",
+      "$",
+      "Image",
+      "localStorage",
+      "sessionStorage",
+      "window",
+      "alert"
+    ]
+  },
   "bugs": {
     "url": "https://github.com/ecomclub/mony/issues"
   },
