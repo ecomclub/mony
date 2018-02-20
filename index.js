@@ -219,10 +219,7 @@ var Mony = function () {
               $.ajax({
                 method: 'GET',
                 url: url,
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json'
-                }
+                dataType: 'json'
               })
               .then(function (response) {
                 /* endpoint = '' */
@@ -281,10 +278,7 @@ var Mony = function () {
             $.ajax({
               method: 'GET',
               url: url,
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              }
+              dataType: 'json'
             })
             .done(function (response) {
               /* endpoint = '' */
@@ -312,21 +306,20 @@ var Mony = function () {
   }
 
   var sendApi = function (endpoint, method, body, callback) {
-    // using $.ajax for HTTPS request
-    var url = 'https://api.e-com.plus/v1/' + endpoint
+    // using jQuery.ajax for HTTPS request
     // console.log(url)
     var config = {
       method: method,
-      url: url,
+      url: 'https://api.e-com.plus/v1/' + endpoint,
+      dataType: 'json',
       headers: {
         'X-Access-Token': accessToken,
         'X-My-ID': myID,
-        'X-Store-ID': storeID,
-        'Content-Type': 'application/json'
+        'X-Store-ID': storeID
       }
     }
     if (typeof body === 'object') {
-      config.data = body
+      config.data = JSON.stringify(body)
     }
 
     // global $
@@ -336,7 +329,7 @@ var Mony = function () {
       /* endpoint = '' */
       if (typeof callback === 'function') {
         // err null
-        callback(null, JSON.parse(json))
+        callback(null, json)
       } else {
         console.log(json)
       }
