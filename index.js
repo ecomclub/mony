@@ -5,10 +5,8 @@ var client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23
 
 var Mony = function () {
   var accessToken, myID, storeID, responseCallback, actionCallback
-  var count, body, method, endpoint, schema, type, property, action
-  var keywords
+  var count, body, method, endpoint, schema, type, property, action, keywords, url
   var size = 0
-  var url
   var bool = false
 
   var sendDialogFlow = function (promise, callback) {
