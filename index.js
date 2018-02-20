@@ -7,10 +7,11 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 /* global ApiAi */
-const client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
+var client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
-  var accessToken, myID, storeID, responseCallback, actionCallback, https, count, body, method, endpoint, schema, type, property, action, logger
+  var accessToken, myID, storeID, responseCallback, actionCallback
+  var https, count, body, method, endpoint, schema, type, property, action, logger
   var keywords
   var size = 0
   var url
@@ -40,10 +41,10 @@ var Mony = function () {
                 promise = client.textRequest('crie: ' + serverResponse.result.parameters.resource)
                 sendDialogFlow(promise)
               } else if (serverResponse.result.parameters.action === 'DELETE') {
-                promise = client.textRequest('devare ' + serverResponse.result.parameters.resource)
+                promise = client.textRequest('deletar: ' + serverResponse.result.parameters.resource)
                 sendDialogFlow(promise)
               } else if (serverResponse.result.parameters.action === 'PATCH') {
-                promise = client.textRequest('editar ' + serverResponse.result.parameters.resource)
+                promise = client.textRequest('editar: ' + serverResponse.result.parameters.resource)
                 sendDialogFlow(promise)
               }
             }
@@ -115,7 +116,9 @@ var Mony = function () {
             endpoint = serverResponse.result.parameters.resource + '.json'
             method = 'POST'
             sendApi(endpoint, method, body, function (response) {
-              responseCallback('O' + serverResponse.result.parameters.resource + 'foi criado, seu id é: ' + response.data._id)
+              var msg = 'O' + serverResponse.result.parameters.resource +
+                'foi criado, seu id é: ' + response.data._id
+              responseCallback(msg)
             })
             break
 
@@ -180,14 +183,16 @@ var Mony = function () {
 
           // send edit to api
           case 'edit - id - property - value - no':
-            endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
+            endpoint = serverResponse.result.parameters.resource + '/' +
+              serverResponse.result.parameters.id + '.json'
             method = 'PATCH'
             sendApi(endpoint, method, body)
             break
 
           // DELETE RESOURCE
           case 'delete - id':
-            endpoint = serverResponse.result.parameters.resource + '/' + serverResponse.result.parameters.id + '.json'
+            endpoint = serverResponse.result.parameters.resource + '/' +
+              serverResponse.result.parameters.id + '.json'
             method = serverResponse.result.parameters.action
             sendApi(endpoint, method)
             break
@@ -248,8 +253,9 @@ var Mony = function () {
               })
             }
             break
+
           default:
-          // response from dialogflow
+            // response from dialogflow
             if (serverResponse.result.fulfillment.messages.length > 1) {
               for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
                 responseCallback(serverResponse.result.fulfillment.messages[i].speech)
@@ -480,9 +486,8 @@ var Mony = function () {
     }
   }
 }
-
 Mony = Mony()
 
-// if (isNodeJs) {
-//   module.exports = Mony
-// }
+if (isNodeJs) {
+  module.exports = Mony
+}
