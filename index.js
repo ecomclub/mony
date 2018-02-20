@@ -317,9 +317,10 @@ var Mony = function () {
         }
       }
     }
-      // Error Handling
+
+    // Error Handling
     function handleError (serverError) {
-     // change to logger
+      // change to logger
       console.log(serverError)
     }
   }
@@ -447,9 +448,9 @@ var Mony = function () {
   }
 
   return {
-
     // function to init conversation on dialogflow with some parameters
-    'init': function (storeid, storeName, domain, name, gender, email, userID, language, token, id, ResponseCallback, ActionCallback) {
+    'init': function (storeid, storeName, domain, name, gender, email, userID, language, token, id,
+      ResponseCallback, ActionCallback) {
       // set token and id to authentication requests
       accessToken = token
       myID = id
@@ -461,8 +462,10 @@ var Mony = function () {
       actionCallback = ActionCallback
 
       // using JS SDK from dialogflow
-      var promise = client.textRequest('O id: ' + storeID + ' nome da loja: ' + storeName + ' dominio: ' + domain +
-      ' nome: ' + name + ' gênero: ' + gender + ' email: ' + email + ' id do usuário: ' + userID + ' linguagem: ' + language)
+      var msg = 'O id: ' + storeID + ' nome da loja: ' + storeName + ' dominio: ' + domain +
+        ' nome: ' + name + ' gênero: ' + gender + ' email: ' + email +
+        ' id do usuário: ' + userID + ' linguagem: ' + language
+      var promise = client.textRequest(msg)
 
       // sendRequest
       sendDialogFlow(promise)
