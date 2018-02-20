@@ -1,25 +1,15 @@
 'use strict'
 
-var isNodeJs = false
-// Verify if the script is Node JS
-if (typeof module !== 'undefined' && module.exports) {
-  isNodeJs = true
-}
-
 /* global ApiAi */
 var client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
   var accessToken, myID, storeID, responseCallback, actionCallback
-  var https, count, body, method, endpoint, schema, type, property, action, logger
+  var count, body, method, endpoint, schema, type, property, action
   var keywords
   var size = 0
   var url
   var bool = false
-
-  if (isNodeJs) {
-    https = require('https')
-  }
 
   var sendDialogFlow = function (promise, callback) {
     promise
@@ -320,17 +310,15 @@ var Mony = function () {
 
     // Error Handling
     function handleError (serverError) {
-      // change to logger
+      // @TODO
       console.log(serverError)
     }
   }
 
   var sendApi = function (endpoint, method, body, callback) {
-  // using axios for HTTPS request
-    var host = 'api.e-com.plus'
-    var path = '/v1'
-    var url = 'https://sandbox.e-com.plus/v1/' + endpoint
-    console.log(url)
+    // using $.ajax for HTTPS request
+    var url = 'https://api.e-com.plus/v1/' + endpoint
+    // console.log(url)
     var config = {
       method: method,
       url: url,
@@ -341,87 +329,24 @@ var Mony = function () {
         'Content-Type': 'application/json'
       }
     }
-
     if (typeof body === 'object') {
       config.data = body
     }
 
-    if (isNodeJs) {
-      // call with NodeJS http module
-      var options = {
-        hostname: host,
-        path: path,
-        method: method,
-        headers: {
-          'X-Access-Token': accessToken,
-          'X-My-ID': myID,
-          'X-Store-ID': storeID,
-          'Content-Type': 'application/json'
-        }
+    // global $
+    var ajax = $.ajax(config)
+
+    ajax.done(function (json) {
+      /* endpoint = '' */
+      if (typeof callback === 'function') {
+        // err null
+        callback(null, JSON.parse(json))
+      } else {
+        console.log(json)
       }
+    })
 
-      var req = https.request(options, function (res) {
-        var rawData = ''
-        res.setEncoding('utf8')
-        res.on('data', function (chunk) {
-          // buffer
-          rawData += chunk
-        })
-        res.on('end', function () {
-          // treat response
-          response(res.statusCode, rawData, callback)
-        })
-      })
-
-      req.on('error', function (err) {
-        console.error(err)
-        // callback with null body
-        callback(err, null)
-      })
-
-      if (body) {
-        // send JSON body
-        req.write(JSON.stringify(body))
-      }
-      req.end()
-    } else {
-      /* global $ */
-      $.ajax({
-        method: 'GET',
-        url: url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-      .done(function (response) {
-        /* endpoint = '' */
-        if (callback) {
-          callback(response)
-        } else {
-          console.log(response)
-        }
-      })
-    }
-  }
-
-  var response = function (status, data, callback) {
-    // treat request response
-    var body
-    try {
-      // expecting valid JSON response body
-      body = JSON.parse(data)
-    } catch (err) {
-      logger.error(err)
-      // callback with null body
-      callback(err, null)
-      return
-    }
-
-    if (status === 200) {
-      // err null
-      callback(null, body)
-    } else {
+    ajax.fail(function (jqXHR, textStatus, err) {
       var msg
       if (body.hasOwnProperty('message')) {
         msg = body.message
@@ -430,8 +355,8 @@ var Mony = function () {
         // not handling Neo4j and Elasticsearch errors
         msg = 'Unknown error, see response objet to more info'
       }
-      errorHandling(callback, msg, body)
-    }
+      errorHandling(callback, msg, jqXHR.responseJSON)
+    })
   }
 
   var errorHandling = function (callback, errMsg, responseBody) {
@@ -444,7 +369,7 @@ var Mony = function () {
         callback(err, responseBody)
       }
     }
-    logger.log(errMsg)
+    console.log(errMsg)
   }
 
   return {
@@ -489,8 +414,5 @@ var Mony = function () {
     }
   }
 }
-Mony = Mony()
-
-if (isNodeJs) {
-  module.exports = Mony
-}
+// global Mony
+window.Mony = Mony()
