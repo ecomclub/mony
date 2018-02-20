@@ -10,12 +10,10 @@ var Mony = function () {
   var bool = false
 
   var sendDialogFlow = function (promise, callback) {
-    promise
-      .then(handleResponse)
-      .catch(handleError)
+    promise.then(handleResponse).catch(handleError)
 
     function handleResponse (serverResponse) {
-        // intent name
+      // intent name
       console.log(serverResponse)
       var intent = serverResponse.result.metadata.intentName
       if (intent) {
