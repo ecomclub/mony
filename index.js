@@ -227,7 +227,7 @@ var Mony = function () {
                   for (var key in response.posts) {
                     if (response.posts.hasOwnProperty(key)) {
                       // link
-                      responseCallback('https://meta.discourse.org/t/' + response.posts[key].id)
+                      responseCallback('https://community.e-com.plus/t/' + response.posts[key].id)
                     }
                   }
                 } else {
@@ -261,7 +261,7 @@ var Mony = function () {
           }
           // do the first request
           size--
-          url = 'https://meta.discourse.org/search.json?q='
+          url = 'https://community.e-com.plus/search.json?q='
           promise = client.textRequest('keyword: ' + keywords[size])
           sendDialogFlow(promise)
         } else {
@@ -286,7 +286,7 @@ var Mony = function () {
                 for (var key in response.posts) {
                   if (response.posts.hasOwnProperty(key)) {
                     // link
-                    responseCallback('https://meta.discourse.org/t/' + response.posts[key].id)
+                    responseCallback('https://community.e-com.plus/t/' + response.posts[key].id)
                   }
                 }
               } else {
