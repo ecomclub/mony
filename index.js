@@ -1,9 +1,9 @@
-'use strict'
+window.Mony = (function () {
+  'use strict'
 
-/* global ApiAi */
-var client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
+  /* global ApiAi */
+  var client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
-var Mony = function () {
   // credentials
   var accessToken, myID, storeID, responseCallback, actionCallback
   // request
@@ -415,6 +415,4 @@ var Mony = function () {
       sendDialogFlow(promise, callback)
     }
   }
-}
-// global Mony
-window.Mony = Mony()
+}())
