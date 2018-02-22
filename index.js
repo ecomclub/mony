@@ -4,9 +4,22 @@
 var client = new ApiAi.ApiAiClient({ accessToken: '639e715963e14f4e886e9fb8cee23e2d' })
 
 var Mony = function () {
+  // credentials
   var accessToken, myID, storeID, responseCallback, actionCallback
-  var count, body, method, endpoint, schema, type, property, action, keywords, url
+  // request
+  var method, endpoint, body, url
+  // type the property to compare in post requests
+  var type
+  // variable to verify in post if the property is in the resource or not
+  var property
+  // count to required properties
+  var count
+  var schema, action
+  // array of keywords
+  var keywords
+  // number of keywords
   var size = 0
+  // variable to verify if the keyword alreay exists
   var bool = false
 
   var sendDialogFlow = function (promise, callback) {
