@@ -254,10 +254,10 @@ window.Mony = (function () {
             // response from dialogflow
             if (serverResponse.result.fulfillment.messages.length > 1) {
               for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
-                responseCallback(serverResponse.result.fulfillment.messages[i].speech)
+                callback(serverResponse.result.fulfillment.messages[i].speech)
               }
             } else {
-              responseCallback(serverResponse.result.fulfillment.speech)
+              callback(serverResponse.result.fulfillment.speech)
             }
         }
       } else {
