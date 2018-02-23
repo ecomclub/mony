@@ -117,9 +117,10 @@ window.Mony = (function () {
             method = 'POST'
             console.log(body)
             sendApi(endpoint, method, body, function (err, response) {
+              console.log(response)
               if (!err) {
                 var msg = 'O' + serverResponse.result.parameters.resource +
-                  'foi criado, seu id é: ' + response.data._id
+                  'foi criado, seu id é: ' + response.data.id
                 responseCallback(msg)
               }
             })
