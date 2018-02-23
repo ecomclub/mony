@@ -252,7 +252,7 @@ window.Mony = (function () {
 
           default:
             // response from dialogflow
-            callback(serverResponse.result.fulfillment.speech)
+            responseCallback(serverResponse.result.fulfillment.speech)
             // if (serverResponse.result.fulfillment.messages.length > 1) {
             //   for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
             //     callback(serverResponse.result.fulfillment.messages[i].speech)
@@ -409,12 +409,12 @@ window.Mony = (function () {
     },
 
     // function to send message from user
-    'sendMessage': function (msg, callback) {
+    'sendMessage': function (msg, responseCallback) {
       // using JS SDK from dialogflow
       var promise = client.textRequest(msg)
 
       // treatMessage
-      sendDialogFlow(promise, callback)
+      sendDialogFlow(promise, responseCallback)
     }
   }
 }())
