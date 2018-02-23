@@ -86,7 +86,7 @@ window.Mony = (function () {
                 property = true
                 if (schema.properties[key].type === 'number') {
                   schema.required[count] = parseInt(serverResponse.result.parameters.value)
-                } else if (type === schema.data.properties[key].type) {
+                } else if (type === schema.properties[key].type) {
                   schema.required[count] = serverResponse.result.parameters.value
                 }
               }
