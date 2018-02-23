@@ -252,13 +252,15 @@ window.Mony = (function () {
 
           default:
             // response from dialogflow
-            if (serverResponse.result.fulfillment.messages.length > 1) {
-              for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
-                callback(serverResponse.result.fulfillment.messages[i].speech)
-              }
-            } else {
-              callback(serverResponse.result.fulfillment.speech)
-            }
+            callback(serverResponse.result.fulfillment.speech)
+            // if (serverResponse.result.fulfillment.messages.length > 1) {
+            //   for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
+            //     callback(serverResponse.result.fulfillment.messages[i].speech)
+            //   }
+            // } else {
+            //   /* callback */
+            //   callback(serverResponse.result.fulfillment.speech)
+            // }
         }
       } else {
         // none intent was triggered
