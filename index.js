@@ -120,7 +120,7 @@ window.Mony = (function () {
               console.log(response)
               if (!err) {
                 var msg = 'O' + serverResponse.result.parameters.resource +
-                  'foi criado, seu id é: ' + response.data.id
+                  'foi criado, seu id é: ' + response.data._id
                 responseCallback(msg)
               }
             })
