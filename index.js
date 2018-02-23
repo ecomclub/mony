@@ -339,6 +339,7 @@ window.Mony = (function () {
         'X-Store-ID': storeID
       }
     }
+    console.log(config.headers)
     if (typeof body === 'object') {
       config.data = JSON.stringify(body)
     }
