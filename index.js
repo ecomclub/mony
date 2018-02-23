@@ -27,7 +27,6 @@ window.Mony = (function () {
 
     function handleResponse (serverResponse) {
       // intent name
-      console.log(serverResponse)
       var intent = serverResponse.result.metadata.intentName
       if (intent) {
         switch (intent) {
@@ -116,6 +115,7 @@ window.Mony = (function () {
           case 'resource - post - extra - no':
             endpoint = serverResponse.result.parameters.resource + '.json'
             method = 'POST'
+            console.log(body)
             sendApi(endpoint, method, body, function (err, response) {
               if (!err) {
                 var msg = 'O' + serverResponse.result.parameters.resource +
