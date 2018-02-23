@@ -98,7 +98,7 @@ window.Mony = (function () {
             if (count < schema.required.length) {
               for (var key2 in schema.properties) {
                 if (schema.required[count] === key2) {
-                  if (schema.properties[key].type !== 'object') {
+                  if (schema.properties[key2].type !== 'object') {
                     promise = client.textRequest('Basico: ' + schema.required[count])
                     sendDialogFlow(promise)
                   }
@@ -133,9 +133,9 @@ window.Mony = (function () {
               if (key3 === serverResponse.result.parameters.property) {
                 property = true
                 // if the value of the property is number, parse the response value of dialogflow
-                if (schema.properties[key].type === 'number') {
+                if (schema.properties[key3].type === 'number') {
                   body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
-                } else if (type === schema.properties[key].type) {
+                } else if (type === schema.properties[key3].type) {
                   body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
                 }
               }
@@ -166,9 +166,9 @@ window.Mony = (function () {
             for (var key4 in schema.properties) {
               if (key4 === serverResponse.result.parameters.property) {
                 property = true
-                if (schema.properties[key].type === 'number') {
+                if (schema.properties[key4].type === 'number') {
                   body[serverResponse.result.parameters.property] = parseInt(serverResponse.result.parameters.value)
-                } else if (type === schema.properties[key].type) {
+                } else if (type === schema.properties[key4].type) {
                   body[serverResponse.result.parameters.property] = serverResponse.result.parameters.value
                 }
               }
@@ -243,10 +243,10 @@ window.Mony = (function () {
               .then(function (response) {
                 /* endpoint = '' */
                 if (callback) {
-                  for (var key in response.posts) {
-                    if (response.posts.hasOwnProperty(key)) {
+                  for (var key5 in response.posts) {
+                    if (response.posts.hasOwnProperty(key5)) {
                       // link
-                      responseCallback('https://community.e-com.plus/t/' + response.posts[key].id)
+                      responseCallback('https://community.e-com.plus/t/' + response.posts[key5].id)
                     }
                   }
                 } else {
@@ -304,10 +304,10 @@ window.Mony = (function () {
             .done(function (response) {
               /* endpoint = '' */
               if (callback) {
-                for (var key in response.posts) {
-                  if (response.posts.hasOwnProperty(key)) {
+                for (var key6 in response.posts) {
+                  if (response.posts.hasOwnProperty(key6)) {
                     // link
-                    responseCallback('https://community.e-com.plus/t/' + response.posts[key].id)
+                    responseCallback('Acesse o link: ' + 'https://community.e-com.plus/t/' + response.topics[key6].id)
                   }
                 }
               } else {
@@ -373,6 +373,7 @@ window.Mony = (function () {
   var errorHandling = function (callback, errMsg, responseBody) {
     if (typeof callback === 'function') {
       var err = new Error(errMsg)
+      console.log(responseBody)
       if (responseBody === undefined) {
         // body null when error occurs before send API request
         callback(err, null)
