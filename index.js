@@ -261,7 +261,7 @@ window.Mony = (function () {
             var strArray = str1.split(' ')
             console.log('2', strArray)
             var dialogResponse = ''
-            for (var i = 0; i <= strArray.length; i++) {
+            for (var i = 0; i < strArray.length; i++) {
               console.log('3', strArray[i])
               if (strArray[i].match(/https/g)) {
                 dialogResponse += ' <a href="' + strArray[i] + '">' + strArray[i] + '</a>'
