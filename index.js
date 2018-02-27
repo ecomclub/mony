@@ -247,7 +247,7 @@ window.Mony = (function () {
                 for (var z = 0; z < response.topics.length; z++) {
                   console.log(response.topics[z].id)
                   // link
-                  str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"></a>'
+                  str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                   responseCallback(str)
                 }
               })
@@ -301,10 +301,12 @@ window.Mony = (function () {
             })
             .done(function (response) {
               /* endpoint = '' */
+              var str = 'Olha talvez esses posts da comunidade possa te ajudar: '
               for (var z = 0; z < response.topics.length; z++) {
                 console.log(response.topics[z].id)
                 // link
-                responseCallback('Olha talvez esses posts da comunidade possa te ajudar: ' + 'https://community.e-com.plus/t/' + response.topics[z].id)
+                str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                responseCallback(str)
               }
             })
           }
