@@ -256,7 +256,17 @@ window.Mony = (function () {
 
           default:
             // response from dialogflow
-            responseCallback(serverResponse.result.fulfillment.speech)
+            var str1 = serverResponse.result.fulfillment.speech
+            var strArray = str1.split(' ')
+            var dialogResponse = ''
+            for (var i = 0; i <= strArray.length; i++) {
+              if (strArray[i].match(/https/g)) {
+                dialogResponse += ' <a href="' + strArray[i] + '">' + strArray[i] + '</a>'
+              } else {
+                dialogResponse += ' ' + strArray[i]
+              }
+            }
+            responseCallback(dialogResponse)
             // if (serverResponse.result.fulfillment.messages.length > 1) {
             //   for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
             //     callback(serverResponse.result.fulfillment.messages[i].speech)
