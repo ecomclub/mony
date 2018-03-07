@@ -227,7 +227,10 @@ window.Mony = (function () {
           // discuss
           case 'keywords':
             // url to search
-            url += serverResponse.result.parameters.keyword + '&q='
+            if (serverResponse.result.parameters.keyword) {
+              url += serverResponse.result.parameters.keyword + '&q='
+            }
+
             if (size > 0) {
               size--
               promise = client.textRequest('keyword: ' + keywords[size])
