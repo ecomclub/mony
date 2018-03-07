@@ -26,6 +26,7 @@ window.Mony = (function () {
     promise.then(handleResponse).catch(handleError)
 
     function handleResponse (serverResponse) {
+      console.log(serverResponse)
       // intent name
       var intent = serverResponse.result.metadata.intentName
       if (intent) {
