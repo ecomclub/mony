@@ -269,6 +269,8 @@ window.Mony = (function () {
             // }
         }
       } else {
+        console.log('none')
+
         // none intent was triggered
         // verify if keywords already exits
         if (bool === false) {
