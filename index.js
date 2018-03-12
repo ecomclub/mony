@@ -239,6 +239,8 @@ window.Mony = (function () {
             } else {
               url = url.slice(0, -3)
               console.log(url)
+              bool = false
+              size = 0
 
               /* global $ */
               $.ajax({
@@ -253,8 +255,6 @@ window.Mony = (function () {
                   console.log(response.topics[z].id)
                   // link
                   str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
-                  bool = false
-                  size = 0
                   responseCallback(str)
                 }
               })
@@ -303,6 +303,8 @@ window.Mony = (function () {
             // remove the last 3 varters '&q='
             url = url.slice(0, -3)
             console.log(url)
+            bool = false
+            size = 0
 
             /* global $ */
             $.ajax({
@@ -316,8 +318,6 @@ window.Mony = (function () {
               for (var z = 0; z < response.topics.length; z++) {
                 console.log(response.topics[z].id)
                 // link
-                bool = false
-                size = 0
                 str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                 responseCallback(str)
               }
