@@ -21,6 +21,7 @@ window.Mony = (function () {
   var size = 0
   // variable to verify if the keyword alreay exists
   var bool = false
+  var disc = false
 
   var sendDialogFlow = function (promise, callback) {
     promise.then(handleResponse).catch(handleError)
@@ -227,7 +228,7 @@ window.Mony = (function () {
           // discuss
           case 'keywords':
             console.log('2')
-            var disc = true
+            disc = true
             // url to search
             if (serverResponse.result.parameters.keyword) {
               url += serverResponse.result.parameters.keyword + '&q='
@@ -242,7 +243,7 @@ window.Mony = (function () {
               console.log(url)
               bool = false
               size = 0
-
+              disc = false
               /* global $ */
               $.ajax({
                 method: 'GET',
@@ -306,7 +307,7 @@ window.Mony = (function () {
             console.log(url)
             bool = false
             size = 0
-
+            disc = false
             /* global $ */
             $.ajax({
               method: 'GET',
