@@ -228,17 +228,17 @@ window.Mony = (function () {
           // discuss
           case 'keywords':
             console.log('2')
-            disc = true
             // url to search
             if (serverResponse.result.parameters.keyword) {
               url += serverResponse.result.parameters.keyword + '&q='
+              disc = true
             }
 
             if (size > 0) {
               size--
               promise = client.textRequest('keyword: ' + keywords[size])
               sendDialogFlow(promise)
-            } else {
+            } else if (disc === true) {
               url = url.slice(0, -3)
               console.log(url)
               bool = false
@@ -260,6 +260,8 @@ window.Mony = (function () {
                     responseCallback(str)
                   }
                 })
+            } else {
+              responseCallback('Não entendi, poderia perguntar de outra forma ?')
             }
             break
 
