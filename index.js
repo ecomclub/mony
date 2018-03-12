@@ -54,7 +54,7 @@ window.Mony = (function () {
           case 'resource - post':
             endpoint = serverResponse.result.parameters.resource + '/schema.json'
             method = 'GET'
-           // get schema resource
+            // get schema resource
             sendApi(endpoint, method, body, function (err, response) {
               if (!err) {
                 schema = response
@@ -78,7 +78,7 @@ window.Mony = (function () {
 
           // add required properties to body
           case 'resource - post - basico - value':
-           // add required element to body
+            // add required element to body
             type = typeof serverResponse.result.parameters.value
             property = false
             // verify the type of the property
@@ -96,7 +96,7 @@ window.Mony = (function () {
               console.log('Não existe esta propriedade para este recurso')
             }
             count++
-           // more required elements to add
+            // more required elements to add
             if (count < schema.required.length) {
               for (var key2 in schema.properties) {
                 if (schema.required[count] === key2) {
@@ -154,7 +154,7 @@ window.Mony = (function () {
           case 'resource - edit':
             endpoint = serverResponse.result.parameters.resource + '/schema.json'
             method = 'GET'
-           // get schema resource
+            // get schema resource
             sendApi(endpoint, method, body, function (err, response) {
               if (!err) {
                 schema = response
@@ -250,16 +250,16 @@ window.Mony = (function () {
                 url: url,
                 dataType: 'json'
               })
-              .done(function (response) {
+                .done(function (response) {
                 /* endpoint = '' */
-                var str = 'Olha talvez esses posts da comunidade possa te ajudar: '
-                for (var z = 0; z < response.topics.length; z++) {
-                  console.log(response.topics[z].id)
-                  // link
-                  str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
-                  responseCallback(str)
-                }
-              })
+                  var str = 'Olha talvez esses posts da comunidade possa te ajudar: '
+                  for (var z = 0; z < response.topics.length; z++) {
+                    console.log(response.topics[z].id)
+                    // link
+                    str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                    responseCallback(str)
+                  }
+                })
             }
             break
 
@@ -314,16 +314,16 @@ window.Mony = (function () {
               url: url,
               dataType: 'json'
             })
-            .done(function (response) {
-              /* endpoint = '' */
-              var str = 'Olha talvez esses posts da comunidade possa te ajudar: '
-              for (var z = 0; z < response.topics.length; z++) {
-                console.log(response.topics[z].id)
-                // link
-                str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
-                responseCallback(str)
-              }
-            })
+              .done(function (response) {
+                /* endpoint = '' */
+                var str = 'Olha talvez esses posts da comunidade possa te ajudar: '
+                for (var z = 0; z < response.topics.length; z++) {
+                  console.log(response.topics[z].id)
+                  // link
+                  str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                  responseCallback(str)
+                }
+              })
           } else {
             responseCallback('Não entendi, poderia perguntar de outra forma ?')
           }
