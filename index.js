@@ -227,6 +227,7 @@ window.Mony = (function () {
           // discuss
           case 'keywords':
             console.log('2')
+            var disc = true
             // url to search
             if (serverResponse.result.parameters.keyword) {
               url += serverResponse.result.parameters.keyword + '&q='
@@ -299,7 +300,7 @@ window.Mony = (function () {
             size--
             promise = client.textRequest('keyword: ' + keywords[size])
             sendDialogFlow(promise)
-          } else {
+          } else if (disc === true) {
             // remove the last 3 varters '&q='
             url = url.slice(0, -3)
             console.log(url)
@@ -322,6 +323,8 @@ window.Mony = (function () {
                 responseCallback(str)
               }
             })
+          } else {
+            responseCallback('Não entendi, poderia perguntar de outra forma ?')
           }
         }
       }
