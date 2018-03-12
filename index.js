@@ -226,6 +226,7 @@ window.Mony = (function () {
 
           // discuss
           case 'keywords':
+            console.log('2')
             // url to search
             if (serverResponse.result.parameters.keyword) {
               url += serverResponse.result.parameters.keyword + '&q='
@@ -275,8 +276,8 @@ window.Mony = (function () {
             // }
         }
       } else {
-        console.log('none')
-
+        console.log('1')
+        console.log(bool)
         // none intent was triggered
         // verify if keywords already exits
         if (bool === false) {
