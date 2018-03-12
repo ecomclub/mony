@@ -261,6 +261,8 @@ window.Mony = (function () {
                   }
                 })
             } else {
+              bool = false
+              size = 0
               disc = false
               responseCallback('Não entendi, poderia perguntar de outra forma ?')
             }
@@ -328,6 +330,8 @@ window.Mony = (function () {
                 }
               })
           } else {
+            bool = false
+            size = 0
             disc = false
             responseCallback('Não entendi, poderia perguntar de outra forma ?')
           }
