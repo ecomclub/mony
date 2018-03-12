@@ -252,6 +252,8 @@ window.Mony = (function () {
                   console.log(response.topics[z].id)
                   // link
                   str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                  bool = false
+                  size = 0
                   responseCallback(str)
                 }
               })
@@ -313,6 +315,8 @@ window.Mony = (function () {
               for (var z = 0; z < response.topics.length; z++) {
                 console.log(response.topics[z].id)
                 // link
+                bool = false
+                size = 0
                 str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                 responseCallback(str)
               }
