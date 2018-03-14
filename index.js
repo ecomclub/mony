@@ -310,13 +310,13 @@ window.Mony = (function () {
                   url += keywords2[z] + '&q='
                 }
               }
+              // remove the last 3 varters '&q='
+              url = url.slice(0, -3)
               $.ajax({
                 method: 'GET',
                 url: url,
                 dataType: 'json'
               })
-              // remove the last 3 varters '&q='
-              url = url.slice(0, -3)
                 .done(function (response) {
                 /* endpoint = '' */
                   var str = ''
