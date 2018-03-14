@@ -352,6 +352,7 @@ window.Mony = (function () {
             if (serverResponse.result.fulfillment.messages.length > 1) {
               for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
                 dialogResponse = ''
+                str1 = ''
                 str1 += serverResponse.result.fulfillment.messages[i].speech
                 dialogResponse += str1.replace(/(https?:[\S]+)/g, '<a href="$1">$1></a>')
                 responseCallback(dialogResponse)
