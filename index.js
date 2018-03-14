@@ -348,56 +348,58 @@ window.Mony = (function () {
 
           default:
             // response from dialogflow
-            var str1 = ''
-            var dialogResponse = ''
-            responseCallback('')
-            if (serverResponse.result.fulfillment.messages.length > 1) {
-              for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
-                dialogResponse = ''
-                str1 = ''
-                str1 += serverResponse.result.fulfillment.messages[i].speech
-                dialogResponse += str1.replace(/(https?:[\S]+)/g, '<a href="$1">$1></a>')
-                responseCallback(dialogResponse)
-              }
-            } else {
-              /* response from dialogflow */
-              if (serverResponse.result.fulfillment.speech !== '') {
-                responseCallback(serverResponse.result.fulfillment.smpeech)
-              } else {
-                /* none response from dialogflow, go to community */
-                var str2 = serverResponse.result.resolvedQuery
-                keywords2 = str2.split(' ')
-                url = 'https://community.e-com.plus/search.json?q='
-                for (z = 0; z < keywords2.length; z++) {
-                  if (keywords2[z] !== '' || keywords2[z] !== ' ' || keywords2[z] !== '?' || keywords2[z].length > 4) {
-                    url += keywords2[z] + '&q='
-                  }
+            if (serverResponse.result.metadata.intentName !== 'initialize') {
+              var str1 = ''
+              var dialogResponse = ''
+              responseCallback('')
+              if (serverResponse.result.fulfillment.messages.length > 1) {
+                for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
+                  dialogResponse = ''
+                  str1 = ''
+                  str1 += serverResponse.result.fulfillment.messages[i].speech
+                  dialogResponse += str1.replace(/(https?:[\S]+)/g, '<a href="$1">$1></a>')
+                  responseCallback(dialogResponse)
                 }
-                url = url.slice(0, -3)
-                $.ajax({
-                  method: 'GET',
-                  url: url,
-                  dataType: 'json'
-                })
-                  .done(function (response) {
-                  /* endpoint = '' */
-                    var str = ''
-                    if (response.topics.length > 0) {
-                      if (response.topics.length === 1) {
-                        str += 'Olha talvez esse post da comunidade possa te ajudar: '
-                      } else {
-                        str += 'Olha talvez esses posts da comunidade possam te ajudar: '
-                      }
-                      for (var z = 0; z < response.topics.length; z++) {
-                        console.log(response.topics[z].id)
-                        // link
-                        str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
-                      }
-                      responseCallback(str)
-                    } else {
-                      responseCallback('Não entendi, poderia perguntar de outra forma ?')
+              } else {
+                /* response from dialogflow */
+                if (serverResponse.result.fulfillment.speech !== '') {
+                  responseCallback(serverResponse.result.fulfillment.smpeech)
+                } else {
+                  /* none response from dialogflow, go to community */
+                  var str2 = serverResponse.result.resolvedQuery
+                  keywords2 = str2.split(' ')
+                  url = 'https://community.e-com.plus/search.json?q='
+                  for (z = 0; z < keywords2.length; z++) {
+                    if (keywords2[z] !== '' || keywords2[z] !== ' ' || keywords2[z] !== '?' || keywords2[z].length > 4) {
+                      url += keywords2[z] + '&q='
                     }
+                  }
+                  url = url.slice(0, -3)
+                  $.ajax({
+                    method: 'GET',
+                    url: url,
+                    dataType: 'json'
                   })
+                    .done(function (response) {
+                    /* endpoint = '' */
+                      var str = ''
+                      if (response.topics.length > 0) {
+                        if (response.topics.length === 1) {
+                          str += 'Olha talvez esse post da comunidade possa te ajudar: '
+                        } else {
+                          str += 'Olha talvez esses posts da comunidade possam te ajudar: '
+                        }
+                        for (var z = 0; z < response.topics.length; z++) {
+                          console.log(response.topics[z].id)
+                          // link
+                          str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                        }
+                        responseCallback(str)
+                      } else {
+                        responseCallback('Não entendi, poderia perguntar de outra forma ?')
+                      }
+                    })
+                }
               }
             }
         }
