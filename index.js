@@ -307,7 +307,7 @@ window.Mony = (function () {
               url = 'https://community.e-com.plus/search.json?'
               console.log(keywords)
               for (z = 0; z < keywords.length; z++) {
-                if (keywords[z] !== '' || keywords[z] !== ' ' || keywords[z] !== '?' || keywords[z].length > 4) {
+                if (keywords[z] !== '' && keywords[z] !== ' ' && keywords[z] !== '?' && keywords[z].length > 4) {
                   url += keywords[z] + '&q='
                 }
               }
