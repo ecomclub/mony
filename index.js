@@ -32,6 +32,8 @@ window.Mony = (function () {
       var intent = serverResponse.result.metadata.intentName
       if (intent) {
         switch (intent) {
+          case 'initialize':
+            break
           // RESOURCE
           case 'general':
             count = 0
