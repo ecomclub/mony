@@ -348,9 +348,9 @@ window.Mony = (function () {
             // response from dialogflow
             var str1 = ''
             var dialogResponse = ''
-            console.log('messages= ' + serverResponse.result.fulfillment.messages)
-            console.log('messages1= ' + serverResponse.result.fulfillment.messages[0])
-            console.log('messages2= ' + serverResponse.result.fulfillment.messages[1])
+            console.log('messages= ' + serverResponse.result.fulfillment.messages.length)
+            console.log('messages1= ' + serverResponse.result.fulfillment.messages[0].speech)
+            console.log('messages2= ' + serverResponse.result.fulfillment.messages[1].speech)
             if (serverResponse.result.fulfillment.messages.length > 1) {
               for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
                 str1 += serverResponse.result.fulfillment.messages[i].speech
