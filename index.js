@@ -348,6 +348,7 @@ window.Mony = (function () {
             // response from dialogflow
             var str1 = ''
             var dialogResponse = ''
+            responseCallback('')
             if (serverResponse.result.fulfillment.messages.length > 1) {
               for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
                 dialogResponse = ''
