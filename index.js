@@ -303,9 +303,8 @@ window.Mony = (function () {
                   }
                 })
             } else if (disc === false) {
-              console.log('disc -> false')
+              // NONE KEYWORDS TRIGGERED ON DIALOGFLOW, SEND A GET ON COMMUNITY WITH THE KERWORDS
               url = 'https://community.e-com.plus/search.json?'
-              console.log(keywords)
               for (z = 0; z < keywords.length; z++) {
                 if (keywords[z] !== '' && keywords[z] !== ' ' && keywords[z] !== '?' && keywords[z].length > 4) {
                   url += keywords[z] + '&q='
@@ -354,13 +353,14 @@ window.Mony = (function () {
               for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
                 str1 += serverResponse.result.fulfillment.messages[i].speech
                 dialogResponse += str1.replace(/(https?:[\S]+)/g, '<a href="$1">$1></a>')
-                responseCallback(dialogResponse)
               }
+              responseCallback(dialogResponse)
             } else {
-              /* callback */
+              /* response from dialogflow */
               if (serverResponse.result.fulfillment.speech !== '') {
                 responseCallback(serverResponse.result.fulfillment.smpeech)
               } else {
+                /* none response from dialogflow, go to community */
                 var str2 = serverResponse.result.resolvedQuery
                 keywords2 = str2.split(' ')
                 url = 'https://community.e-com.plus/search.json?q='
@@ -398,8 +398,6 @@ window.Mony = (function () {
             }
         }
       } else {
-        console.log('1')
-        console.log(bool)
         // none intent was triggered
         // verify if keywords already exits
         if (bool === false) {
