@@ -348,15 +348,13 @@ window.Mony = (function () {
             // response from dialogflow
             var str1 = ''
             var dialogResponse = ''
-            console.log('messages= ' + serverResponse.result.fulfillment.messages.length)
-            console.log('messages1= ' + serverResponse.result.fulfillment.messages[0].speech)
-            console.log('messages2= ' + serverResponse.result.fulfillment.messages[1].speech)
             if (serverResponse.result.fulfillment.messages.length > 1) {
               for (var i = 0; i < serverResponse.result.fulfillment.messages.length; i++) {
+                dialogResponse = ''
                 str1 += serverResponse.result.fulfillment.messages[i].speech
                 dialogResponse += str1.replace(/(https?:[\S]+)/g, '<a href="$1">$1></a>')
+                responseCallback(dialogResponse)
               }
-              responseCallback(dialogResponse)
             } else {
               /* response from dialogflow */
               if (serverResponse.result.fulfillment.speech !== '') {
