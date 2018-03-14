@@ -305,10 +305,10 @@ window.Mony = (function () {
             } else if (disc === false) {
               console.log('disc -> false')
               url = 'https://community.e-com.plus/search.json?'
-              console.log(serverResponse.result.resolvedQuery)
-              for (z = 0; z < keywords2.length; z++) {
-                if (keywords2[z] !== '' || keywords2[z] !== ' ' || keywords2[z] !== '?' || keywords2[z].length > 4) {
-                  url += keywords2[z] + '&q='
+              console.log(keywords)
+              for (z = 0; z < keywords.length; z++) {
+                if (keywords[z] !== '' || keywords[z] !== ' ' || keywords[z] !== '?' || keywords[z].length > 4) {
+                  url += keywords[z] + '&q='
                 }
               }
               // remove the last 3 varters '&q='
