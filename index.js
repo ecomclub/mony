@@ -32,7 +32,7 @@ window.Mony = (function () {
       var intent = serverResponse.result.metadata.intentName
       if (intent) {
         switch (intent) {
-          case 'initialize':
+          case 'iniatialize':
             console.log('initialize')
             break
           // RESOURCE
