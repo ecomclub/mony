@@ -290,14 +290,14 @@ window.Mony = (function () {
                   var str = ''
                   if (response.topics.length > 0) {
                     if (response.topics.length === 1) {
-                      str += 'Olha talvez esse post da comunidade possa te ajudar: '
+                      str += 'Olha talvez esse post da comunidade possa lhe ajudar: '
                     } else {
-                      str += 'Olha talvez esses posts da comunidade possam te ajudar: '
+                      str += 'Olha talvez esses posts da comunidade possam lhe ajudar: '
                     }
                     for (var z = 0; z < response.topics.length; z++) {
                       console.log(response.topics[z].id)
                       // link
-                      str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                      str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                     }
                     responseCallback(str)
                   } else {
@@ -324,14 +324,14 @@ window.Mony = (function () {
                   var str = ''
                   if (response.topics.length > 0) {
                     if (response.topics.length === 1) {
-                      str += 'Olha talvez esse post da comunidade possa te ajudar: '
+                      str += 'Olha talvez esse post da comunidade possa lhe ajudar: '
                     } else {
-                      str += 'Olha talvez esses posts da comunidade possam te ajudar: '
+                      str += 'Olha talvez esses posts da comunidade possam lhe ajudar: '
                     }
                     for (var z = 0; z < response.topics.length; z++) {
                       console.log(response.topics[z].id)
                       // link
-                      str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                      str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                     }
                     responseCallback(str)
                   } else {
@@ -357,7 +357,7 @@ window.Mony = (function () {
                   dialogResponse = ''
                   str1 = ''
                   str1 += serverResponse.result.fulfillment.messages[i].speech
-                  dialogResponse += str1.replace(/(https?:[\S]+)/g, '<a href="$1">$1></a>')
+                  dialogResponse += str1.replace(/(https?:[\S]+)/g, '<a href="$1" target="_blank">$1></a>')
                   responseCallback(dialogResponse)
                 }
               } else {
@@ -392,7 +392,7 @@ window.Mony = (function () {
                         for (var z = 0; z < response.topics.length; z++) {
                           console.log(response.topics[z].id)
                           // link
-                          str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                          str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                         }
                         responseCallback(str)
                       } else {
@@ -444,7 +444,7 @@ window.Mony = (function () {
                 for (var z = 0; z < response.topics.length; z++) {
                   console.log(response.topics[z].id)
                   // link
-                  str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
+                  str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                 }
                 responseCallback(str)
               })
