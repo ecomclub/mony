@@ -33,7 +33,7 @@ window.Mony = (function () {
       if (intent) {
         switch (intent) {
           case 'iniatialize':
-            console.log('initialize')
+          // dont send init to discuss
             break
           // RESOURCE
           case 'general':
