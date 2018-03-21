@@ -120,7 +120,9 @@ window.Mony = (function () {
           case 'resource - post - extra - no':
             endpoint = serverResponse.result.parameters.resource + '.json'
             method = 'POST'
+            responseCallback(body)
             sendApi(endpoint, method, body, function (err, response) {
+              responseCallback(response)
               if (!err) {
                 var msg = 'O' + serverResponse.result.parameters.resource +
                   'foi criado, seu id é: ' + response._id
@@ -249,6 +251,7 @@ window.Mony = (function () {
                     str += 'Olha talvez esses posts da comunidade possam te ajudar: '
                   }
                   for (var z = 0; z < response.topics.length; z++) {
+                    responseCallback(response.topics[z].id)
                     // link
                     str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                   }
@@ -447,6 +450,12 @@ window.Mony = (function () {
         }
       }
     }
+
+    // Error Handling
+    function handleError (serverError) {
+      // @TODO
+      responseCallback(serverError)
+    }
   }
 
   var sendApi = function (endpoint, method, body, callback) {
@@ -464,29 +473,28 @@ window.Mony = (function () {
     if (typeof body === 'object') {
       config.data = JSON.stringify(body)
     }
+    $.ajax(config)
+      .done(function (json) {
+        /* endpoint = '' */
+        if (typeof callback === 'function') {
+          // err null
+          callback(null, json)
+        } else {
+          console.log(json)
+        }
+      })
 
-    // global $
-    var ajax = $.ajax(config)
-
-    ajax.done(function (json) {
-      /* endpoint = '' */
-      if (typeof callback === 'function') {
-        // err null
-        callback(null, json)
-      }
-    })
-
-    ajax.fail(function (jqXHR, textStatus, err) {
-      var msg
-      if (body.hasOwnProperty('message')) {
-        msg = body.message
-      } else {
-        // probably an error response from Graphs or Search API
-        // not handling Neo4j and Elasticsearch errors
-        msg = 'Unknown error, see response objet to more info'
-      }
-      errorHandling(callback, msg, jqXHR.responseJSON)
-    })
+      .fail(function (jqXHR, textStatus, err) {
+        var msg
+        if (body.hasOwnProperty('message')) {
+          msg = body.message
+        } else {
+          // probably an error response from Graphs or Search API
+          // not handling Neo4j and Elasticsearch errors
+          msg = 'Unknown error, see response objet to more info'
+        }
+        errorHandling(callback, msg, jqXHR.responseJSON)
+      })
   }
 
   var errorHandling = function (callback, errMsg, responseBody) {
@@ -499,6 +507,7 @@ window.Mony = (function () {
         callback(err, responseBody)
       }
     }
+    callback(errMsg, null)
   }
 
   return {
