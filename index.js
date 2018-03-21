@@ -266,6 +266,7 @@ window.Mony = (function () {
           // discuss
           case 'keywords':
             // url to search
+            console.log(serverResponse.result.parameters.keyword)
             if (serverResponse.result.parameters.keyword !== '') {
               url += serverResponse.result.parameters.keyword + '&q='
               disc = true
