@@ -27,7 +27,6 @@ window.Mony = (function () {
     promise.then(handleResponse).catch(handleError)
 
     function handleResponse (serverResponse) {
-      console.log(serverResponse)
       // intent name
       var intent = serverResponse.result.metadata.intentName
       if (intent) {
@@ -97,7 +96,7 @@ window.Mony = (function () {
               }
             }
             if (property === false) {
-              console.log('Não existe esta propriedade para este recurso')
+              responseCallback('Não existe esta propriedade para este recurso')
             }
             count++
             // more required elements to add
@@ -121,9 +120,7 @@ window.Mony = (function () {
           case 'resource - post - extra - no':
             endpoint = serverResponse.result.parameters.resource + '.json'
             method = 'POST'
-            console.log(body)
             sendApi(endpoint, method, body, function (err, response) {
-              console.log(response)
               if (!err) {
                 var msg = 'O' + serverResponse.result.parameters.resource +
                   'foi criado, seu id é: ' + response._id
@@ -148,7 +145,7 @@ window.Mony = (function () {
               }
             }
             if (property === false) {
-              console.log('Não existe esta propriedade para este recurso')
+              responseCallback('Não existe esta propriedade para este recurso')
             }
             promise = client.textRequest('propriedade extra')
             sendDialogFlow(promise)
@@ -181,7 +178,7 @@ window.Mony = (function () {
               }
             }
             if (property === false) {
-              console.log('Não existe esta propriedade para este recurso')
+              responseCallback('Não existe esta propriedade para este recurso')
             }
             promise = client.textRequest('propriedade extra')
             sendDialogFlow(promise)
@@ -252,7 +249,6 @@ window.Mony = (function () {
                     str += 'Olha talvez esses posts da comunidade possam te ajudar: '
                   }
                   for (var z = 0; z < response.topics.length; z++) {
-                    console.log(response.topics[z].id)
                     // link
                     str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                   }
@@ -266,7 +262,6 @@ window.Mony = (function () {
           // discuss
           case 'keywords':
             // url to search
-            console.log(serverResponse.result.parameters.keyword)
             if (serverResponse.result.parameters.keyword !== '') {
               url += serverResponse.result.parameters.keyword + '&q='
               disc = true
@@ -278,7 +273,6 @@ window.Mony = (function () {
               sendDialogFlow(promise)
             } else if (disc === true) {
               url = url.slice(0, -3)
-              console.log(url)
               bool = false
               size = 0
               disc = false
@@ -298,7 +292,6 @@ window.Mony = (function () {
                       str += 'Olha talvez esses posts da comunidade possam lhe ajudar: '
                     }
                     for (var z = 0; z < response.topics.length; z++) {
-                      console.log(response.topics[z].id)
                       // link
                       str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                     }
@@ -332,7 +325,6 @@ window.Mony = (function () {
                       str += 'Olha talvez esses posts da comunidade possam lhe ajudar: '
                     }
                     for (var z = 0; z < response.topics.length; z++) {
-                      console.log(response.topics[z].id)
                       // link
                       str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                     }
@@ -392,7 +384,6 @@ window.Mony = (function () {
                         str += 'Olha talvez esses posts da comunidade possam te ajudar: '
                       }
                       for (var z = 0; z < response.topics.length; z++) {
-                        console.log(response.topics[z].id)
                         // link
                         str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                       }
@@ -429,7 +420,6 @@ window.Mony = (function () {
           } else if (disc === true) {
             // remove the last 3 varters '&q='
             url = url.slice(0, -3)
-            console.log(url)
             bool = false
             size = 0
             disc = false
@@ -443,7 +433,6 @@ window.Mony = (function () {
                 /* endpoint = '' */
                 var str = 'Olha talvez esses posts da comunidade possa te ajudar: '
                 for (var z = 0; z < response.topics.length; z++) {
-                  console.log(response.topics[z].id)
                   // link
                   str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                 }
@@ -458,17 +447,10 @@ window.Mony = (function () {
         }
       }
     }
-
-    // Error Handling
-    function handleError (serverError) {
-      // @TODO
-      console.log(serverError)
-    }
   }
 
   var sendApi = function (endpoint, method, body, callback) {
     // using jQuery.ajax for HTTPS request
-    // console.log(url)
     var config = {
       method: method,
       url: 'https://api.e-com.plus/v1/' + endpoint,
@@ -479,7 +461,6 @@ window.Mony = (function () {
         'X-Store-ID': storeID
       }
     }
-    console.log(config.headers)
     if (typeof body === 'object') {
       config.data = JSON.stringify(body)
     }
@@ -492,8 +473,6 @@ window.Mony = (function () {
       if (typeof callback === 'function') {
         // err null
         callback(null, json)
-      } else {
-        console.log(json)
       }
     })
 
@@ -513,7 +492,6 @@ window.Mony = (function () {
   var errorHandling = function (callback, errMsg, responseBody) {
     if (typeof callback === 'function') {
       var err = new Error(errMsg)
-      console.log(responseBody)
       if (responseBody === undefined) {
         // body null when error occurs before send API request
         callback(err, null)
@@ -521,7 +499,6 @@ window.Mony = (function () {
         callback(err, responseBody)
       }
     }
-    console.log(errMsg)
   }
 
   return {
