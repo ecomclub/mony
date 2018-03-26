@@ -452,9 +452,17 @@ window.Mony = (function () {
     }
 
     // Error Handling
-    function handleError (serverError) {
-      // @TODO
-      responseCallback(serverError)
+    function handleError (callback, errMsg, responseBody) {
+      if (typeof callback === 'function') {
+        var err = new Error(errMsg)
+        if (responseBody === undefined) {
+          // body null when error occurs before send API request
+          callback(err, null)
+        } else {
+          callback(err, responseBody)
+        }
+      }
+      console.log('WARNING' + '\n' + errMsg)
     }
   }
 
