@@ -260,6 +260,18 @@ window.Mony = (function () {
                   responseCallback('Não entendi, poderia perguntar de outra forma ?')
                 }
               })
+
+              .fail(function (jqXHR, textStatus, errorThrown) {
+                var msg
+                if (body.hasOwnProperty('message')) {
+                  msg = body.message
+                } else {
+                  // probably an error response from Graphs or Search API
+                  // not handling Neo4j and Elasticsearch errors
+                  msg = 'Unknown error, see response objet to more info'
+                }
+                errorHandling(callback, msg, jqXHR.responseJSON)
+              })
             break
 
           // discuss
@@ -303,6 +315,18 @@ window.Mony = (function () {
                     responseCallback('Não entendi, poderia perguntar de outra forma ?')
                   }
                 })
+
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                  var msg
+                  if (body.hasOwnProperty('message')) {
+                    msg = body.message
+                  } else {
+                    // probably an error response from Graphs or Search API
+                    // not handling Neo4j and Elasticsearch errors
+                    msg = 'Unknown error, see response objet to more info'
+                  }
+                  errorHandling(callback, msg, jqXHR.responseJSON)
+                })
             } else if (disc === false) {
               // NONE KEYWORDS TRIGGERED ON DIALOGFLOW, SEND A GET ON COMMUNITY WITH THE KERWORDS
               url = 'https://community.e-com.plus/search.json?'
@@ -335,6 +359,18 @@ window.Mony = (function () {
                   } else {
                     responseCallback('Não entendi, poderia perguntar de outra forma ?')
                   }
+                })
+
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                  var msg
+                  if (body.hasOwnProperty('message')) {
+                    msg = body.message
+                  } else {
+                    // probably an error response from Graphs or Search API
+                    // not handling Neo4j and Elasticsearch errors
+                    msg = 'Unknown error, see response objet to more info'
+                  }
+                  errorHandling(callback, msg, jqXHR.responseJSON)
                 })
             } else {
               bool = false
@@ -395,6 +431,18 @@ window.Mony = (function () {
                       responseCallback('Não entendi, poderia perguntar de outra forma ?')
                     }
                   })
+
+                  .fail(function (jqXHR, textStatus, errorThrown) {
+                    var msg
+                    if (body.hasOwnProperty('message')) {
+                      msg = body.message
+                    } else {
+                      // probably an error response from Graphs or Search API
+                      // not handling Neo4j and Elasticsearch errors
+                      msg = 'Unknown error, see response objet to more info'
+                    }
+                    errorHandling(callback, msg, jqXHR.responseJSON)
+                  })
               }
             }
         }
@@ -440,6 +488,18 @@ window.Mony = (function () {
                   str += '<a href="https://community.e-com.plus/t/' + response.topics[z].id + '" target="_blank"> https://community.e-com.plus/t/' + response.topics[z].id + ' </a>'
                 }
                 responseCallback(str)
+              })
+
+              .fail(function (jqXHR, textStatus, errorThrown) {
+                var msg
+                if (body.hasOwnProperty('message')) {
+                  msg = body.message
+                } else {
+                  // probably an error response from Graphs or Search API
+                  // not handling Neo4j and Elasticsearch errors
+                  msg = 'Unknown error, see response objet to more info'
+                }
+                errorHandling(callback, msg, jqXHR.responseJSON)
               })
           } else {
             bool = false
