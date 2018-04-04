@@ -369,6 +369,7 @@ window.Mony = (function () {
                     // probably an error response from Graphs or Search API
                     // not handling Neo4j and Elasticsearch errors
                     msg = 'Unknown error, see response objet to more info'
+                    responseCallback(msg)
                   }
                   errorHandling(callback, msg, jqXHR.responseJSON)
                 })
@@ -440,6 +441,7 @@ window.Mony = (function () {
                       // probably an error response from Graphs or Search API
                       // not handling Neo4j and Elasticsearch errors
                       msg = 'Unknown error, see response objet to more info'
+                      responseCallback(msg)
                     }
                     errorHandling(callback, msg, jqXHR.responseJSON)
                   })
@@ -498,6 +500,7 @@ window.Mony = (function () {
                   // probably an error response from Graphs or Search API
                   // not handling Neo4j and Elasticsearch errors
                   msg = 'Unknown error, see response objet to more info'
+                  responseCallback(msg)
                 }
                 errorHandling(callback, msg, jqXHR.responseJSON)
               })
@@ -560,6 +563,7 @@ window.Mony = (function () {
           // probably an error response from Graphs or Search API
           // not handling Neo4j and Elasticsearch errors
           msg = 'Unknown error, see response objet to more info'
+          responseCallback(msg)
         }
         errorHandling(callback, msg, jqXHR.responseJSON)
       })
