@@ -33,7 +33,6 @@ window.Mony = (function () {
         // parse to HTML and callback
         var html = text.replace(/(https?:[\S]+)/g, '<a href="$1" target="_blank">$1</a>')
         ResponseCallback(null, html)
-        if (Debug) console.info(html)
       } else {
         // empty callback
         ResponseCallback()
@@ -54,6 +53,13 @@ window.Mony = (function () {
   }
 
   methods.init = function (params, accessToken, responseCallback, debug) {
+    // set global callback function and debug option
+    if (typeof responseCallback === 'function') {
+      ResponseCallback = responseCallback
+    }
+    Debug = debug
+    if (Debug) console.info('debugging Mony responses')
+
     // init conversation on Dialogflow setting up some parameters
     var paramsList = [ 'storeId', 'storeName', 'domain', 'name', 'gender', 'email', 'myId', 'lang', 'hour' ]
     var msg = ''
@@ -64,12 +70,8 @@ window.Mony = (function () {
       var param = paramsList[i]
       msg += '$' + param + ':"' + (params[param] || '') + '" '
     }
-    // send the first message and set the response callback function
+    // send the first message
     methods.sendMessage(msg)
-    if (typeof responseCallback === 'function') {
-      ResponseCallback = responseCallback
-    }
-    Debug = debug
   }
 
   /* global jQuery */
