@@ -5,7 +5,11 @@ window.Mony = (function () {
   var methods = {}
   // response callback function
   var ResponseCallback = function (err, html) {
-    (err ? console.error(err) : console.log(html))
+    if (err) {
+      console.error(err)
+    } else {
+      console.info(html)
+    }
   }
   // credentials
   // var StoreId, AccessToken, MyId
