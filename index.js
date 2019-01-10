@@ -53,7 +53,7 @@ window.Mony = (function () {
     }
     // send the first message and set the response callback function
     methods.sendMessage(msg)
-    if (typeof response === 'function') {
+    if (typeof responseCallback === 'function') {
       ResponseCallback = responseCallback
     }
   }
