@@ -3,6 +3,8 @@ window.Mony = (function () {
 
   // lib methods
   var methods = {}
+  // debug option state
+  var Debug
   // response callback function
   var ResponseCallback = function (err, html) {
     if (err) {
@@ -22,18 +24,25 @@ window.Mony = (function () {
   methods.sendMessage = function (msg) {
     // send a request to Dialogflow with any text message
     client.textRequest(msg)
+
+    // successful response handler
     .then(function (response) {
+      if (Debug) console.info(response)
       var text = response.result.fulfillment.speech.trim()
       if (text && text !== '') {
         // parse to HTML and callback
         var html = text.replace(/(https?:[\S]+)/g, '<a href="$1" target="_blank">$1</a>')
         ResponseCallback(null, html)
+        if (Debug) console.info(html)
       } else {
         // empty callback
         ResponseCallback()
       }
     })
+
+    // Dialogflow server error handler
     .catch(function (error) {
+      if (Debug) console.info(error)
       ResponseCallback(error)
     })
   }
@@ -44,7 +53,7 @@ window.Mony = (function () {
     methods.sendMessage('$route:/' + hash)
   }
 
-  methods.init = function (params, accessToken, responseCallback) {
+  methods.init = function (params, accessToken, responseCallback, debug) {
     // init conversation on Dialogflow setting up some parameters
     var paramsList = [ 'storeId', 'storeName', 'domain', 'name', 'gender', 'email', 'myId', 'lang', 'hour' ]
     var msg = ''
@@ -60,6 +69,7 @@ window.Mony = (function () {
     if (typeof responseCallback === 'function') {
       ResponseCallback = responseCallback
     }
+    Debug = debug
   }
 
   /* global jQuery */
