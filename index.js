@@ -12,7 +12,7 @@ window.Mony = (function () {
 
   /* global ApiAi */
   var client = new ApiAi.ApiAiClient({
-    accessToken: 'YOUR_ACCESS_TOKEN'
+    accessToken: '38e90080662a4340a3d67ae31b91a86c'
   })
 
   methods.sendMessage = function (msg) {
