@@ -72,7 +72,9 @@ window.Mony = (function () {
     params.hour = new Date().getHours()
     for (var i = 0; i < paramsList.length; i++) {
       var param = paramsList[i]
-      msg += param + ' ' + (params[param] || '-') + ' '
+      // does not accept strings with spaces
+      var val = typeof params[param] === 'string' ? params[param].split(' ')[0] : '-'
+      msg += param + ' ' + val + ' '
     }
     // send the first message
     methods.sendMessage(msg)
