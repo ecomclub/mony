@@ -27,7 +27,9 @@ window.Mony = (function () {
 
     // successful response handler
     .then(function (response) {
-      if (Debug) console.info(response)
+      if (Debug) {
+        console.info(response)
+      }
       var text = response.result.fulfillment.speech.trim()
       if (text && text !== '') {
         // parse to HTML and callback
@@ -45,7 +47,9 @@ window.Mony = (function () {
 
     // Dialogflow server error handler
     .catch(function (error) {
-      if (Debug) console.info(error)
+      if (Debug) {
+        console.info(error)
+      }
       ResponseCallback(error)
     })
   }
@@ -62,7 +66,9 @@ window.Mony = (function () {
       ResponseCallback = responseCallback
     }
     Debug = debug
-    if (Debug) console.info('debugging Mony responses')
+    if (Debug) {
+      console.info('debugging Mony responses')
+    }
 
     // init conversation on Dialogflow setting up some parameters
     var paramsList = [ 'name', 'gender', 'email', 'hour', 'language' ]
@@ -70,10 +76,25 @@ window.Mony = (function () {
     params = params || {}
     // send current local hour
     params.hour = new Date().getHours()
+
+    // mount message with received params
     for (var i = 0; i < paramsList.length; i++) {
       var param = paramsList[i]
-      // does not accept strings with spaces
-      var val = typeof params[param] === 'string' ? params[param].split(' ')[0] : '-'
+      var val
+      switch (typeof params[param]) {
+        case 'string':
+          // does not accept strings with spaces
+          val = params[param].split(' ')[0]
+          if (val === '') {
+            val = '-'
+          }
+          break
+        case 'number':
+          val = params[param]
+          break
+        default:
+          val = '-'
+      }
       msg += param + ' ' + val + ' '
     }
     // send the first message
