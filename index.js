@@ -78,6 +78,11 @@ window.Mony = (function () {
     }
     // send the first message
     methods.sendMessage(msg)
+
+    // setup Store ID if defined
+    if (params.storeId) {
+      methods.sendMessage('1#storeId ' + params.storeId)
+    }
   }
 
   /* global jQuery */
