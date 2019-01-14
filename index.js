@@ -83,9 +83,11 @@ window.Mony = (function () {
   /* global jQuery */
   if (typeof jQuery === 'function') {
     // autosync current route with mony
-    jQuery(window).on('hashchange', function () {
+    var updateRoute = function () {
       methods.sendRoute(window.location.hash)
-    })
+    }
+    jQuery(window).on('hashchange', updateRoute)
+    updateRoute()
   }
 
   return methods
