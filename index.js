@@ -32,7 +32,11 @@ window.Mony = (function () {
       if (text && text !== '') {
         // parse to HTML and callback
         var html = text.replace(/(https?:[\S]+)/g, '<a href="$1" target="_blank">$1</a>')
-        ResponseCallback(null, html)
+        // split message for each double line break
+        var parts = html.split('\n\n')
+        for (var i = 0; i < parts.length; i++) {
+          ResponseCallback(null, parts[i].replace(/\n/g, '<br>'))
+        }
       } else {
         // empty callback
         ResponseCallback()
