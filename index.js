@@ -48,8 +48,8 @@ window.Mony = (function () {
 
   methods.sendRoute = function (hash) {
     // mock to send current admin panel route (page)
-    // eg.: "$route:/#/home"
-    methods.sendMessage('$route:/' + hash)
+    // eg.: "/#/home"
+    methods.sendMessage('/' + hash)
   }
 
   methods.init = function (params, accessToken, responseCallback, debug) {
@@ -61,14 +61,14 @@ window.Mony = (function () {
     if (Debug) console.info('debugging Mony responses')
 
     // init conversation on Dialogflow setting up some parameters
-    var paramsList = [ 'storeId', 'storeName', 'domain', 'name', 'gender', 'email', 'myId', 'lang', 'hour' ]
+    var paramsList = [ 'name', 'gender', 'email', 'hour', 'language' ]
     var msg = ''
     params = params || {}
     // send current local hour
     params.hour = new Date().getHours()
     for (var i = 0; i < paramsList.length; i++) {
       var param = paramsList[i]
-      msg += '$' + param + ':"' + (params[param] || '') + '" '
+      msg += param + ' ' + (params[param] || '-') + ' '
     }
     // send the first message
     methods.sendMessage(msg)
